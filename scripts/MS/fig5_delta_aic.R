@@ -2,7 +2,7 @@
 library(tidyverse)
 library(plotly)
 
-out <- read.csv('./data/processed_data/moving_window/model_output.csv')
+out <- read.csv('./data/model_output.csv')
 ################################################################################
 # set up labels and levels of factor
 
@@ -60,7 +60,7 @@ delta_aic <- ggplot(out_prop, aes(x = as.Date(start_date), y = diff_from_none_ai
 delta_aic
 ggplotly(delta_aic)
 
-ggsave('./figures/moving_window/MS/fig5_delta_aic_significance.png', delta_aic,
+ggsave('./figures/figure5_delta_aic_significance.png', delta_aic,
        dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.6)
 
 #######################################################################################
