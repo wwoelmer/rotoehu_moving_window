@@ -1,7 +1,7 @@
 library(tidyverse)
 library(RColorBrewer)
 
-out <- read.csv('./data/processed_data/moving_window/model_output.csv')
+out <- read.csv('./data/model_output.csv')
 ################################################################################
 # set up labels and levels of factor
 
@@ -42,7 +42,7 @@ all_with_signif <- ggplot(t, aes(x = as.Date(start_date), y = r2, group = id_cov
   scale_color_manual(values = c('#6C5379', '#5FAD56')) +
   labs(color = 'Significant')
 all_with_signif
-ggsave('./figures/moving_window/MS/figS6_r2_with_signif.png', all_with_signif,
+ggsave('./figures/figureS4_r2_with_signif.png', all_with_signif,
        dpi = 300, units = 'mm', height = 300, width = 600, scale = 0.4)
 
 out_mean <- out %>% 
@@ -71,9 +71,9 @@ r2_mean <- ggplot(out_mean, aes(x = date, y = mean_val)) +
   labs(color = 'Driver')
 r2_mean
 
-ggsave('./figures/moving_window/MS/SI_figs/MS/r2_timeseries_all_vars.png', r2_results,
+ggsave('./figures/figureS2_r2_timeseries_all_vars.png', r2_results,
        dpi = 300, units = 'mm', height = 300, width = 600, scale = 0.4)
 
-ggsave('./figures/moving_window/MS/fig3_r2_mean_CI.png', r2_mean,
+ggsave('./figures/figure4_r2_mean_CI.png', r2_mean,
        dpi = 300, units = 'mm', height = 300, width = 475, scale = 0.4)
 
