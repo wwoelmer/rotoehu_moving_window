@@ -3,20 +3,11 @@ library(tidyverse)
 library(plotly)
 library(zoo)
 library(readxl)
+source('./scripts/functions/yr_to_hydro_yr.R')
 
 ##########################
-## LAWA water quality 
-#wq <- read.csv('./data/processed_data/BoP_wq_2007_2021.csv')
-#wq$date <- as.Date(wq$date)
-#wq <- wq %>% 
-#  mutate(year = year(date),
-#         month = month(date)) %>% 
-#  select(-depth_m) %>% 
-#  filter(lake=='Rotoehu')
-#wq$category <- NA
-
-# use water quality data from Deniz, which goes back further in time
-wq <- read.csv("./data/processed_data/rotoehu_waterquality_2000_2021.csv")
+# read in water quality data from Deniz
+wq <- read.csv("./data/raw_data/rotoehu_waterquality_2000_2021.csv")
 wq$date <- as.Date(wq$date)
 wq$site <- as.character(wq$site)
 wq <- wq %>% 
@@ -26,19 +17,16 @@ wq$category <- NA
 
 ##################################################################
 # temp and thermal stratification metrics
-temp <- read.csv('./data/processed_data/90s_data/temp_metrics_rotoehu_90s.csv')
+temp <- read.csv('./data/processed_data/rotoehu_thermal_metrics_1990_2024.csv')
 temp <- temp %>% 
   select(-X) %>% 
   mutate(month = month(date)) 
-temp$date <- as.POSIXct(temp$date)
-temp <- yr_to_hydro_yr(temp)
-temp$month <- as.integer(temp$month)
-temp <- temp %>% select(-date, -hydroyear_label) %>% 
-  distinct(hydroyear, month, .keep_all = TRUE)
+temp$date <- as.Date(temp$date)
 
+df <- left_join(wq, temp)
 ###########################
 # ctd data
-ctd <- read.csv('./data/processed_data/BoP_ctd_2003_2022.csv')
+ctd <- read.csv('./data/raw_data/BoP_ctd_2003_2022.csv')
 ctd$date <- as.Date(ctd$date)
 ctd <- ctd %>% 
   mutate(year = year(date),
@@ -60,7 +48,7 @@ ggplot(ctd_wide, aes(x = chla_ugL_1, y = chla_ugL_8)) +
   geom_point()
 
 
-df <- left_join(wq, ctd_wide, by = c('lake', 'year', 'month', 'site'))
+df <- left_join(df, ctd_wide, by = c('lake', 'year', 'month', 'site'))
 df <- df %>% 
   rename(date = date.x) %>% 
   select(-c(category, date.y, time, DO_gm3_1, DO_gm3_8, chla_ugL_1, 
@@ -83,28 +71,12 @@ df <- df %>%
          temp_C_8 = na.approx(temp_C_8, na.rm = FALSE, rule = 2, maxgap = 15))
 
 ###########################################################################################
-######################################
-### thermal mixing metrics
-mix <- read.csv('./data/processed_data/BoP_mix_index_2004_2019.csv')
-mix <- mix %>% 
-  filter(lake=='Rotoehu') %>% 
-  select(lake, site, date, everything()) %>% 
-  mutate(year = year(date),
-         month = month(date)) %>% 
-  distinct(lake, year, month, site, .keep_all = TRUE)
-
-
-df <- left_join(df, mix, by = c('lake', 'year', 'month', 'site'))
-df <- df %>% 
-  rename(date = date.x) %>% 
-  select(-date.y)
-
 #####################################
 ### met data
-met <- read.csv('./data/processed_data/Rotoehu_met_summaries_1999_2021.csv')
+met <- read.csv('./data/processed_data/Rotoehu_met_summaries_1999_2023.csv')
 df <- left_join(df, met, by = c('month', 'year'))
 
-#####################################
+##################################################################################
 ## lake level
 lvl <- read_excel('./data/raw_data/EDS-686238-HL143688-Entire Record.xlsx', skip = 5)
 lvl <- na.omit(lvl)
@@ -127,11 +99,9 @@ lvl <- lvl %>%
 
 df <- left_join(df, lvl, by = 'date')
 
-######################################
-## inflow data (discharge and loads)
-
+###################################################################################
 ## alum loading
-al <- read.csv('./data/processed_data/alum_dosing_rotoehu_2011_2022.csv')
+al <- read.csv('./data/raw_data/alum_dosing_rotoehu_2011_2022.csv')
 al$date <- as.Date(al$date)
 al <- al %>% 
   select(date, L_alum_day) 
@@ -170,17 +140,7 @@ df <- df %>%
 ggplot(df, aes(x = date, y  = sum_alum)) +
   geom_point(size = 2)
 
-## nutrients
-nuts <- read.csv(paste0('./data/processed_data/inflow_nutrients_2001_2023.csv'))
-nuts <- nuts %>% 
-  mutate(year = year(date_inf),
-         month = month(date_inf)) %>% 
-  select(-date_inf) %>% 
-  distinct(year, month)
-
-df <- left_join(df,  nuts, by = c('year', 'month'))
-
-######################################
+###################################################################################
 ## land cover data
 
 lc <- read.csv('./data/processed_data/landcover_1996_2018.csv')
@@ -192,17 +152,7 @@ lc_wide <- lc %>%
 
 df <- left_join(df, lc_wide, by = c('lake', 'site', 'year'))
 
-#################################################
-# permutation entropy
-#pe <- read.csv('./data/processed_data/PE_tli_vars.csv')
-#pe <- pe %>% 
-#  pivot_wider(names_from = variable, values_from = pe, names_prefix = 'PE_')
-#pe$year <- as.numeric(pe$year)
-#pe <- pe %>% 
-#  select(-c(ndemb, n))
-
-#df <- left_join(df, pe, by = 'year')
-
+####################################################################################
 ## write the dataset as master file
 write.csv(df, './data/master_rotoehu.csv', row.names = FALSE)
 
