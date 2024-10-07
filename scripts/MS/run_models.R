@@ -1,8 +1,4 @@
 # run simple AR model for TLI + one covariate from set of potential driver variables
-# with groups defined as climatic, (air temp, rainfall, windspeed)
-#                       anthropogenic, (land use change, alum dosing)
-#                       climatic*anthropogenic interaction, (discharge, nutrient load)
-#                       internal variability (e.g., obs complexity, anoxic factor?)
 
 library(tidyverse)
 library(MuMIn)
@@ -15,7 +11,6 @@ library(statcomp)
 
 
 # read in data
-#dat <- read.csv('./data/processed_data/BoP_wq_2007_2021.csv')
 dat <- read.csv('./data/master_rotoehu.csv')
 
 mean_secchi <- mean(dat$secchi_m, na.rm = TRUE)
@@ -34,7 +29,7 @@ dat <- dat %>%
 
 
 # calculate monthly TLI
-source('./scripts/R/tli_fx.R')
+source('./scripts/functions/tli_fx.R')
 
 dat <- dat %>% 
   group_by(month, year, lake, site) %>%
@@ -45,7 +40,7 @@ dat <- dat %>%
 hist(dat$tli_monthly)
 tli <- ggplot(dat, aes(x = as.Date(date), y = tli_monthly)) +
   geom_point(size = 1.2) +
-  geom_line(aes(x = as.Date(date), y = tli_annual), size = 2) +
+  geom_line(aes(x = as.Date(date), y = tli_annual), linewidth = 2) +
   theme_bw()
 ggplotly(tli)
 
@@ -65,7 +60,7 @@ ggplot(aes(x = as.Date(date), y = tli_annual)) +
 
 #######################################################
 # run the ar model simulation
-source('./scripts/R/run_ar.R')
+source('./scripts/functions/run_ar.R')
 
 # this set of variables comes from the decadal analysis (90s, 2000s, 2010s) plus land cover, alum, and 'none'
 test_vars <- c("bottom_DRP_ugL", "bottom_NH4_ugL",
@@ -92,9 +87,10 @@ for(i in 1:length(test_vars)){
       select(date, id_var, test_vars[i])  
   }
   
+  print(test_vars[i])
 
   for(j in 1:length(n_iter)){
-    
+    print(n_iter[j])
     # subset to the 100 observations in the iteration
     start <- j
     end <- j + window_length
@@ -118,12 +114,13 @@ for(i in 1:length(test_vars)){
   }
 }
 
-write.csv(out, './data/processed_data/moving_window/model_output.csv', row.names = FALSE)
+write.csv(out, './data/model_output.csv', row.names = FALSE)
 
 
 
 
-
+#######################################################################################
+### PROBABLY CUT BELOW ################################################################
 ## select a single driving covariate and compare across model parameters
 out %>% 
   filter(id_covar=='air_temp_mean') %>% 
