@@ -3,7 +3,7 @@ library(tidyverse)
 library(plotly)
 library(RColorBrewer)
 
-out <- read.csv('./data/processed_data/moving_window/model_output.csv')
+out <- read.csv('./data/model_output.csv')
 
 test_vars <- c("bottom_DRP_ugL", "bottom_NH4_ugL",
                "temp_C_8", "air_temp_mean", "windspeed_min", 
@@ -39,5 +39,5 @@ params <- out %>%
 
 params
 
-ggsave('./figures/moving_window/MS/fig7_parameter_time_series.png', params, dpi = 300, units = 'mm', 
+ggsave('./figures/figure7_parameter_time_series.png', params, dpi = 300, units = 'mm', 
        height = 400, width = 550, scale = 0.4)
