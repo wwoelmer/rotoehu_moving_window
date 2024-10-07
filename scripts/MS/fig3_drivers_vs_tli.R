@@ -6,7 +6,7 @@ library(ggpubr)
 data <- read.csv('./data/master_rotoehu.csv')
 
 # calculate monthly TLI
-source('./scripts/R/tli_fx.R')
+source('./scripts/functions/tli_fx.R')
 
 data <- data %>% 
   group_by(month, year, lake, site) %>%
@@ -88,7 +88,7 @@ whole <- ggplot(data_long, aes(x = value, y = tli_monthly, color = variable)) +
   theme(legend.position = 'none')
 whole
 
-ggsave('./figures/moving_window/MS/drivers_vs_tli_whole_timeseries.png', whole,
+ggsave('./figures/figure3_drivers_vs_tli.png', whole,
        dpi = 300, units = 'mm', height = 450, width = 450, scale = 0.4)
 ####################################################################################
 # look at this during a time period where a non-significant variable increased in importance (e.g., water level)
@@ -131,48 +131,6 @@ part <- ggplot(dat_sub2, aes(x = value, y = tli_monthly, color = variable)) +
   labs(x = 'Value', y = 'Monthly TLI',
        color = 'Variable')
 part
-ggarrange(whole, part, common.legend = TRUE)
 
-
-##################################################################################
-# look at a later time frame
-dat_sub <- data_long %>% 
-  filter(date > as.Date('2018-01-01')) %>% 
-  select(-significant, -p.value, -pearson, -cor_signif)
-
-# Fit linear models for each group and get p-values
-model_sub <- dat_sub %>%
-  group_by(variable) %>%
-  do(tidy(lm(tli_monthly ~ value, data = .))) 
-
-cor_sub <- dat_sub %>% 
-  drop_na() %>% 
-  group_by(variable) %>% 
-  summarise(pearson = cor(tli_monthly, value),
-            cor_signif = cor.test(tli_monthly, value)$p.value)
-cor_sub  
-
-# Add significance column to the original dataset
-significance_info <- model_sub %>%
-  filter(term == "value") %>%
-  select(variable, p.value) %>%
-  mutate(significant = p.value < 0.05)
-
-dat_sub2 <- dat_sub %>%
-  left_join(significance_info, by = "variable") %>% 
-  left_join(cor_sub, by = 'variable') %>% 
-  mutate(significant = ifelse(is.na(significant), FALSE, significant)) 
-
-# Plot using ggplot2 with facet_wrap
-part <- ggplot(dat_sub2, aes(x = value, y = tli_monthly, color = variable)) +
-  geom_point() +
-  facet_wrap(~variable, scales = 'free') +
-  geom_smooth(data = filter(dat_sub2, cor_signif < 0.05), method = "lm") +
-  scale_color_manual(values = col_pal) +
-  geom_text(aes(x = Inf, y = Inf, label = round(pearson, 2)), 
-            hjust = 1.1, vjust = 2, size = 4, color = "gray3") +
-  theme_bw() +
-  labs(x = 'Value', y = 'Monthly TLI',
-       color = 'Variable') +
-  ggtitle('Relationships with data from 2018-2023')
-part
+ggsave('./figures/figureS9_drivers_vs_tli.png', part,
+       dpi = 300, units = 'mm', height = 450, width = 450, scale = 0.4)
