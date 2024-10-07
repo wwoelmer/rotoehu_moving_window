@@ -3,7 +3,7 @@ library(tidyverse)
 library(RColorBrewer)
 library(ggridges)
 
-out <- read.csv('./data/processed_data/moving_window/model_output.csv')
+out <- read.csv('./data/model_output.csv')
 ################################################################################
 # set up labels and levels of factor
 
@@ -65,7 +65,7 @@ rank <- ggplot(out_rank, aes(x = reorder(id_covar, sum_r2), y = pct, fill = fct_
   labs(fill = 'Rank') +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.55)) 
 rank
-ggsave('./figures/moving_window/MS/fig6_rank_barplot.png', rank, dpi = 300, units = 'mm', height = 400, width = 600, scale = 0.3)
+#ggsave('./figures/moving_window/MS/figure6_rank_barplot.png', rank, dpi = 300, units = 'mm', height = 400, width = 600, scale = 0.3)
 
 col_no <- length(unique(out_rank$id_covar))
 col_pal <- colorRampPalette(brewer.pal(9, "Set1"))(col_no)
@@ -90,58 +90,7 @@ b
 
 
 
-
-c <- ggplot(out_prop, aes(x = rank_AR, y = reorder(id_covar, median_rank), fill = id_covar)) +
-  geom_density_ridges(alpha = 0.8) +
- # geom_jitter(data = out_prop, aes(x = rank_AR, y = id_covar), alpha = 0.2) +
-  scale_fill_manual(values = col_pal) +
-  theme_bw() +
-  scale_x_continuous(breaks = (1:9),  # Specify breaks for y-axis
-                     labels = (1:9)) +
-  labs(fill = 'Driver') +
-  xlab('Rank') +
-  ylab("") +
-  theme(legend.position = 'none')
-
-
 p1 <- ggarrange(rank, b, labels = 'auto', widths = c(0.55, 0.45))
-ggsave('./figures/moving_window/MS/fig6_rank_barplot_with_boxplot.png', p1, 
+p1
+ggsave('./figures/figure6_rank_heatmap_with_boxplot.png', p1, 
        dpi = 300, units = 'mm', height = 400, width = 700, scale = 0.3)
-p2 <- ggarrange(rank, c, labels = 'auto', widths = c(0.6, 0.4))
-ggsave('./figures/moving_window/MS/fig6_rank_barplot_with_densityplot.png', p2, 
-       dpi = 300, units = 'mm', height = 400, width = 700, scale = 0.3)
-
-################################################
-## for AIC
-out_prop_aic <- out_prop %>% 
-  select(id_covar:rank_aic)
-
-out_rank <- plyr::ddply(out_prop_aic, c("id_covar", "rank_aic"), \(x) {
-  n <- nrow(x)
-  pct <- round(n/length(unique(out_prop$iter_start))*100)
-  return(data.frame(pct = pct))
-})
-
-
-
-out_rank <- out_rank %>% 
-  group_by(rank_aic) %>% 
-  arrange(pct) %>% 
-  group_by(id_covar) %>% 
-  mutate(sum_aic = rev(sum(pct*rank_aic)))
-
-out_rank$rank_aic
-
-aic_rank <- ggplot(out_rank, aes(x = reorder(id_covar, sum_aic), y = pct, fill = fct_rev(as.factor(rank_aic)))) +
-  geom_bar(stat = 'identity') +
-  scale_fill_manual(values = rank_pal) +
-  theme_bw() +
-  ylab('Percent of time') +
-  xlab('Covariate') +
-  labs(fill = 'Rank') +
-  theme(text=element_text(size=14),
-        axis.text.x = element_text(angle = 45, vjust = 0.55)) 
-
-aic_rank
-ggsave('./figures/moving_window/rank_aic_barplot.png', 
-       aic_rank, dpi = 300, units = 'mm', height = 400, width = 600, scale = 0.3)
