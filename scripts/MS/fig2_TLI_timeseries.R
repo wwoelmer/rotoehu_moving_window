@@ -129,7 +129,6 @@ secchi <- ggplot(dat_90s, aes(x = date, y = secchi_m, color = as.factor(hydroyea
 
 p_vars <- ggarrange(tn, tp, chl, secchi, common.legend = TRUE)
 p_vars
-ggsave('./figures/tli_vars_90s.png', p_vars, dpi = 300, units = 'mm', height = 350, width = 500, scale = 0.5)
 
 ###################################################################################################
 # combine with data from 2001 onward
@@ -147,7 +146,7 @@ dat_all <- full_join(dat_90s, dat_00s)
 
 ################################################################################################
 # calculate TLI
-source('./scripts/R/tli_fx.R')
+source('./scripts/functions//tli_fx.R')
 
 # calculate each month's tli and each year's TLI (annual TLI is the mean of variable then TLI calculation, done within function)
 dat_all <- dat_all %>% 
@@ -177,7 +176,7 @@ p1
 ggplotly(p1)
 mean(dat_all$tli_annual)
 
-ggsave('./figures/tli_timeseries.png', p1, dpi = 300, units = 'mm', height = 300, width = 500, scale = 0.5)
+ggsave('./figures/figure2_tli_1990_2021.png', p1, dpi = 300, units = 'mm', height = 300, width = 500, scale = 0.5)
 
 #############################################################################################
-write.csv(dat_all, './data/processed_data/90s_data/tli_rotoehu.csv', row.names = FALSE)
+write.csv(dat_all, './data/processed_data/rotoehu_tli_1990_2021.csv', row.names = FALSE)
