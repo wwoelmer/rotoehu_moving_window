@@ -7,7 +7,7 @@ library(aemetools)
 lon <- 176.5320481
 lat <- -38.02467652
 
-met <- get_era5_point(lat = lat, lon = lon, years = 1999:2023)
+met <- get_era5_point(lat = lat, lon = lon, years = 2023:2024)
 summary(met)
 
 # process met data
@@ -36,8 +36,8 @@ rain_summ <- met %>%
 
 all_sum <- left_join(met_summ, rain_summ)
 
-write.csv(met, paste0('./data/processed_data/Rotoehu_met_', min(year(met$date)), "_", 
+write.csv(met, paste0('./data/processed_data/rotoehu_met_', min(year(met$date)), "_", 
                       max(year(met$date)), '.csv'), row.names = FALSE)
-write.csv(all_sum, paste0('./data/processed_data/Rotoehu_met_summaries_',
+write.csv(all_sum, paste0('./data/processed_data/rotoehu_met_summaries_',
                           min(year(met$date)), "_", 
                           max(year(met$date)), '.csv'), row.names = FALSE)
