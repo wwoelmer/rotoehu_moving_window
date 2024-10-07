@@ -73,7 +73,7 @@ df <- df %>%
 ###########################################################################################
 #####################################
 ### met data
-met <- read.csv('./data/processed_data/Rotoehu_met_summaries_1999_2023.csv')
+met <- read.csv('./data/processed_data/rotoehu_met_summaries_1999_2024.csv')
 df <- left_join(df, met, by = c('month', 'year'))
 
 ##################################################################################

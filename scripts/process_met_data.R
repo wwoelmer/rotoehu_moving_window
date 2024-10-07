@@ -7,7 +7,7 @@ library(aemetools)
 lon <- 176.5320481
 lat <- -38.02467652
 
-met <- get_era5_point(lat = lat, lon = lon, years = 2023:2024)
+met <- get_era5_point(lat = lat, lon = lon, years = 1999:2024)
 summary(met)
 
 # process met data
