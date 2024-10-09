@@ -55,8 +55,14 @@ write.csv(ysi2, './data/processed_data/rotoehu_ctd_1990_2024.csv', row.names = F
 
 # extract surface and bottom temps for analysis
 temps <- ysi2 %>% 
-  filter(depth_m==0|depth_m==8) %>% 
-  select(date, depth_m, temp_C) %>% 
+  group_by(date) %>% 
+  mutate(depth_keep_top = ifelse(any(depth_m==0), 0,
+                             if_else(any(depth_m==1), 1, NA_real_)),
+         depth_keep_bottom = max(depth_m)) %>% 
+  filter(depth_m==depth_keep_top|depth_m==depth_keep_bottom) %>% 
+  select(date, depth_m, temp_C) %>%
+  mutate(depth_m = ifelse(depth_m==1, 0, depth_m), # reassign the 1m as 0
+         depth_m = ifelse(depth_m!=0, 8, depth_m)) %>% # reassign the bototm depths to 8
   distinct(date, depth_m, .keep_all = TRUE) %>% 
   pivot_wider(names_from = depth_m, values_from = temp_C, 
               names_prefix = 'temp_')
@@ -136,4 +142,4 @@ ggplot(t_metrics, aes(x = as.Date(date), y = schmidt_stability,
 t_dat <- full_join(t_metrics, temps) 
 t_dat <- t_dat %>% 
   select(date, thermo_depth, schmidt_stability, temp_0, temp_8)
-write.csv(t_dat, './data/processed_data/rotoehu_thermal_metrics_1990_2024.csv')
+write.csv(t_dat, './data/processed_data/rotoehu_thermal_metrics_1990_2024.csv', row.names = FALSE)
