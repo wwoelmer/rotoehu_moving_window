@@ -8,12 +8,14 @@ out <- read.csv('./data/model_output.csv')
 out$id_covar <- factor(out$id_covar, 
                        levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
                                   "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
-                                  "schmidt_stability", "sum_alum", "none"),
+                                  "sum_alum", "none"),
                        labels = c("bottom DRP", "bottom NH4", "bottom water temp",
                                   "mean air temp", "min windspeed", "monthly water level", 
-                                  "schmidt stability", "alum dosed", "none"))
-col_no <- length(unique(out$id_covar))
+                                  "alum dosed", "none"))
+col_no <- length(unique(out$id_covar)) + 1
 col_pal <- colorRampPalette(brewer.pal(9, "Set1"))(col_no)
+# update color pal so 'none' is the grey color
+col_pal <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#F781BF", "#999999")
 ################################################################################
 # look at R2 results
 r2_results <- ggplot(out, aes(x = as.Date(start_date), y = r2, color = id_covar)) +

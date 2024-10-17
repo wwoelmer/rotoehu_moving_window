@@ -18,6 +18,8 @@ vars <- c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
 
 col_no <- length((vars)) + 2
 col_pal <- colorRampPalette(brewer.pal(9, "Set1"))(col_no)
+# update color pal so 'none' is the grey color
+col_pal <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#F781BF", "#999999")
 
 data <- data %>% 
   ungroup() %>% 
