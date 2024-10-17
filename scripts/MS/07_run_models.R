@@ -12,6 +12,9 @@ library(statcomp)
 
 # read in data
 dat <- read.csv('./data/master_rotoehu.csv')
+# set zeroes to NA for alum
+dat <- dat %>% 
+  mutate(sum_alum = ifelse(is.na(sum_alum), 0, sum_alum))
 
 # subset to time period of this study
 dat <- dat %>% 
