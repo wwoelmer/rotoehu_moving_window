@@ -9,12 +9,13 @@ out <- read.csv('./data/model_output.csv')
 out$id_covar <- factor(out$id_covar, 
                        levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
                                   "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
-                                  "schmidt_stability", "sum_alum", "none"),
+                                  "sum_alum", "none"),
                        labels = c("Bottom DRP", "Bottom NH4", "Bottom Water Temp",
                                   "Mean Air Temp", "Min Windspeed", "Water Level", 
-                                  "Schmidt Stability", "Alum Dosed", "None"))
-col_no <- length(unique(out$id_covar))
-col_pal <- colorRampPalette(brewer.pal(9, "Set1"))(col_no)
+                                   "Alum Dosed", "None"))
+
+# update color pal so 'none' is the grey color
+col_pal <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#F781BF", "#999999")
 ################################################################################
 # calculate the difference across variables
 out_prop <- out %>% 
