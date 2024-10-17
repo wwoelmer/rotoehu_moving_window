@@ -74,13 +74,13 @@ ggplot(aes(x = as.Date(date), y = tli_annual)) +
 # run the ar model simulation
 source('./scripts/functions/run_ar.R')
 
-# this set of variables comes from the decadal analysis (90s, 2000s, 2010s) plus land cover, alum, and 'none'
+# this set of variables comes from the decadal analysis (90s, 2000s, 2010s) plus alum, and 'none'
+# see output of script 06_decadal_correlation_coefficient.R for list of variables
 test_vars <- c("bottom_DRP_ugL", "bottom_NH4_ugL",
                "temp_C_8", "air_temp_mean", "windspeed_min", 
                "monthly_avg_level_m", 
                #"schmidt_stability", 
                "sum_alum",
-               "temp_C_1", "DO_mgL_8",
                "none")
 
 id_var <- "tli_monthly"
