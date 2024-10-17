@@ -8,20 +8,24 @@ out <- read.csv('./data/model_output.csv')
 test_vars <- c("bottom_DRP_ugL", "bottom_NH4_ugL",
                "temp_C_8", "air_temp_mean", "windspeed_min", 
                "monthly_avg_level_m", 
-               "schmidt_stability", 
                "sum_alum",
                "none")
 
-col_no <- length(unique(out$id_covar))
-col_pal <- colorRampPalette(brewer.pal(9, "Set1"))(col_no)
+# set to NA the value in the first window with alum dosing as the parameter value is affected by the switch from 0 alum
+out <- out %>% 
+  mutate(value = ifelse(id_covar=='sum_alum' & start_date=='2003-03-21', NA, value))
+
+col_pal <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#F781BF", "#999999")
+
 
 out$id_covar <- factor(out$id_covar, 
                              levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
                                         "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
-                                        "schmidt_stability", "sum_alum"),
-                             labels = c("Bottom DRP (µg/L)", "Bottom NH4 (µg/L)", "Bottom Water Temp (°C)",
-                                        "Mean Air Temp (°C)", "Min Windspeed (m2/s)", "Water Level (m)", 
-                                        "Schmidt Stability (J/m2)", "Alum Dosed (L/day)"))
+                                        "sum_alum"),
+                             labels = c("Bottom DRP", "Bottom NH4", "Bottom Water Temp",
+                                        "Mean Air Temp", "Min Windspeed", "Water Level", 
+                                         "Alum Dosed"))
+
 ################################################################################
 # look at parameter values
 params <- out %>% 
@@ -38,6 +42,7 @@ params <- out %>%
         legend.position = 'none')
 
 params
+ggplotly(params)
 
 ggsave('./figures/figure7_parameter_time_series.png', params, dpi = 300, units = 'mm', 
        height = 400, width = 550, scale = 0.4)
