@@ -6,19 +6,20 @@ library(tidyverse)
 library(ggplot2)
 library(ggpubr)
 
-out <- read.csv('./data/processed_data/moving_window/model_output.csv')
+out <- read.csv('./data/model_output.csv')
 
 ##################################################################################
 # set up color palette
 out$id_covar <- factor(out$id_covar, 
                        levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
                                   "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
-                                  "schmidt_stability", "sum_alum", "none"),
+                                  "sum_alum", "none"),
                        labels = c("bottom DRP", "bottom NH4", "bottom water temp",
                                   "mean air temp", "min windspeed", "monthly water level", 
-                                  "schmidt stability", "alum dosed", "none"))
-col_no <- length(unique(out$id_covar))
-col_pal <- colorRampPalette(brewer.pal(9, "Set1"))(col_no)
+                                   "alum dosed", "none"))
+
+col_pal <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#F781BF", "#999999")
+
 ###################################################################################
 
 ggplot(out, aes(x = iter_start, y = r2, color = id_covar)) +
@@ -56,7 +57,7 @@ aic_r2_compare <- ggplot(out, aes(x = aic, y = r2, color = id_covar)) +
 
 combined_fig <- ggarrange(aicc, aic_r2_compare, common.legend = TRUE, labels = 'AUTO')
 combined_fig
-ggsave('./figures/moving_window/MS/SI_figs/aic_r2_comparison.png', combined_fig,
+ggsave('./figures/figS5_aic_r2_comparison.png', combined_fig,
        dpi = 300, units = 'mm', height = 300, width = 700, scale = 0.5)
 
 
