@@ -10,10 +10,10 @@ out <- read.csv('./data/model_output.csv')
 out$id_covar <- factor(out$id_covar, 
                        levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
                                   "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
-                                  "schmidt_stability", "sum_alum", "none"),
+                                  "sum_alum", "none"),
                        labels = c("Bottom DRP", "Bottom NH4", "Bottom Water Temp",
                                   "Mean Air Temp", "Min Windspeed", "Water Level", 
-                                  "Schmidt Stability", "Alum Dosed", "None"))
+                                   "Alum Dosed", "None"))
 
 
 ################################################################################
@@ -24,10 +24,10 @@ out_prop <- out %>%
   group_by(iter_start) %>% 
   mutate(diff_from_best = max(r2) - r2,
          rank = dense_rank(desc(r2)),
-         r2_none = r2[id_covar=='none'],
+         r2_none = r2[id_covar=='None'],
          diff_from_none = r2 - r2_none,
          rank_AR = dense_rank(desc(diff_from_none)),
-         aic_none = aic[id_covar=='none'],
+         aic_none = aic[id_covar=='None'],
          diff_from_none_aic = aic - aic_none,
          rank_aic = dense_rank(desc(diff_from_none_aic*-1))) #multiply by -1 to change the sign so positive is good for ranking purposes
 
@@ -67,8 +67,7 @@ rank <- ggplot(out_rank, aes(x = reorder(id_covar, sum_r2), y = pct, fill = fct_
 rank
 #ggsave('./figures/moving_window/MS/figure6_rank_barplot.png', rank, dpi = 300, units = 'mm', height = 400, width = 600, scale = 0.3)
 
-col_no <- length(unique(out_rank$id_covar))
-col_pal <- colorRampPalette(brewer.pal(9, "Set1"))(col_no)
+col_pal <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#F781BF", "#999999")
 
 # calculate the median as a sorting value
 out_prop <- out_prop %>% 
@@ -76,7 +75,8 @@ out_prop <- out_prop %>%
   mutate(median_rank = median(rank_AR))
 
 b <- ggplot(out_prop, aes(x = rank_AR, y = reorder(id_covar, median_rank), fill = id_covar)) +
-  geom_boxplot() +
+  geom_boxplot( 
+               size = 1) +
   geom_jitter(data = out_prop, aes(x = rank_AR, y = id_covar), alpha = 0.1) +
   scale_fill_manual(values = col_pal) +
   theme_bw() +
