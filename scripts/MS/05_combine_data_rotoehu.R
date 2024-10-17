@@ -9,7 +9,7 @@ source('./scripts/functions/yr_to_hydro_yr.R')
 wq <- read.csv("./data/processed_data/rotoehu_wqdata_1990_2024.csv")
 wq$date <- as.POSIXct(wq$date)
 wq <- yr_to_hydro_yr(wq)
-wq$date <- as.Date(wq$date)
+#wq$date <- as.Date(wq$date)
 wq$site <- as.character(wq$site)
 wq <- wq %>% 
   mutate(year = year(date),
@@ -94,11 +94,9 @@ lvl$month <- month(lvl$date)
 lvl <- lvl %>% 
   group_by(hydroyear, month) %>% 
   mutate(monthly_avg_level_m = mean(avg_level_m, na.rm = TRUE))
-df$date <- as.Date(df$date)
+
+df$date <- as.Date(df$date) + 1
 lvl$date <- as.Date(lvl$date)
-lvl <- lvl %>% 
-  ungroup() %>% 
-  select(-month)
 
 df <- left_join(df, lvl)
 
