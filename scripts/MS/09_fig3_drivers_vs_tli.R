@@ -14,9 +14,9 @@ data <- data %>%
 
 vars <- c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
           "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
-          "schmidt_stability", "sum_alum")
+          "sum_alum")
 
-col_no <- length((vars)) + 1
+col_no <- length((vars)) + 2
 col_pal <- colorRampPalette(brewer.pal(9, "Set1"))(col_no)
 
 data <- data %>% 
@@ -29,10 +29,10 @@ data_long <- data %>%
 data_long$variable <- factor(data_long$variable, 
                        levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
                                   "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
-                                  "schmidt_stability", "sum_alum"),
+                                  "sum_alum"),
                        labels = c("Bottom DRP (µg/L)", "Bottom NH4 (µg/L)", "Bottom Water Temp (°C)",
                                   "Mean Air Temp (°C)", "Min Windspeed (m2/s)", "Water Level (m)", 
-                                  "Schmidt Stability (J/m2)", "Alum Dosed (L/day)"))
+                                  "Alum Dosed (L/day)"))
 
 # check for normality
 ggplot(data_long, aes(x = value, color = variable)) +
@@ -41,14 +41,6 @@ ggplot(data_long, aes(x = value, color = variable)) +
   scale_color_manual(values = col_pal) +
   theme_bw()
 
-data_long %>% 
-  mutate(value = ifelse(variable %in% c("Bottom DRP (µg/L)", "Bottom NH4 (µg/L)",
-                                        "Schmidt Stability (J/m2)"), log(value), value)) %>% 
-ggplot(aes(x = value, color = variable)) +
-  geom_histogram() +
-  facet_wrap(~variable, scales = 'free') +
-  scale_color_manual(values = col_pal) +
-  theme_bw()
 
 
 # Fit linear models for each group and get p-values
@@ -129,7 +121,8 @@ part <- ggplot(dat_sub2, aes(x = value, y = tli_monthly, color = variable)) +
             hjust = 1.1, vjust = 2, size = 4, color = "gray3") +
   theme_bw() +
   labs(x = 'Value', y = 'Monthly TLI',
-       color = 'Variable')
+       color = 'Variable') +
+  theme(legend.position = 'none')
 part
 
 ggsave('./figures/figureS9_drivers_vs_tli.png', part,
