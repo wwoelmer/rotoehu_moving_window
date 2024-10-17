@@ -8,7 +8,6 @@ library(Hmisc)
 library(ggthemes)
 library(RColorBrewer)
 library(plotly)
-library(ggpomological)
 
 
 getDecade <- function(year) {
@@ -20,6 +19,10 @@ getDecade <- function(year) {
 
 df <- read.csv('./data/master_rotoehu.csv')
 df$decade <- getDecade(df$year)
+
+# get rid of double observations in a given month
+df <- df %>% 
+  distinct(year, month, .keep_all = TRUE)
 
 ################################################################################
 # calculate TLI
@@ -154,7 +157,8 @@ vars_out$decade <- factor(vars_out$decade, levels = c('90', '2000', '2010', 'all
 
 # remove min and max variables since they are similar to mean
 `%notin%` <- Negate(`%in%`)
-vars_remove <- c('air_temp_max', 'air_temp_min', 'longwave_max', 'longwave_min')
+vars_remove <- c('air_temp_max', 'air_temp_min', 'longwave_max', 'longwave_min', 
+                 'windspeed_mean', 'windspeed_max', 'DO_mgL_8', 'temp_C_1')
 vars_out <- vars_out %>% 
   filter(variable %notin% vars_remove)
 
@@ -164,11 +168,9 @@ vars_select <- vars_out %>%
   filter(value > 0.3 | value < -0.3)  
 vars_select$variable <- factor(vars_select$variable, 
                                levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
-                                          "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
-                                          "temp_C_1", "windspeed_mean", 'windspeed_min', 'DO_mgL_8'),
+                                          "air_temp_mean", "windspeed_min", "monthly_avg_level_m"),
                                labels = c("bottom DRP", "bottom NH4", "bottom water temp",
-                                          "mean air temp", "min windspeed", "monthly water level", 
-                                          "surface temp", 'mean windspeed', 'min windspeed', 'bottom water DO'))
+                                          "mean air temp", "min windspeed", "monthly water level"))
 
 p1 <- ggplot(vars_select, aes(x = decade, y = value, fill = variable)) +
   geom_col(position = 'dodge') +
@@ -181,7 +183,7 @@ p1 <- ggplot(vars_select, aes(x = decade, y = value, fill = variable)) +
   theme_bw() +
   ylab('Correlation Coefficient') 
 p1
-ggsave('./figures/1991_2021_analysis/r_by_decade.png', p1, dpi = 300, units = 'mm', height = 200, width = 500, scale = 0.4)
+ggsave('./figures/figS3_corr_by_decade.png', p1, dpi = 300, units = 'mm', height = 200, width = 500, scale = 0.4)
 
 ################################################################################
 vars_sig <- vars_out %>% 
