@@ -15,7 +15,8 @@ dat <- read.csv('./data/master_rotoehu.csv')
 
 # subset to time period of this study
 dat <- dat %>% 
-  filter(date > as.Date()) 
+  filter(date > as.Date('2000-07-01')&
+           date < as.Date ('2021-07-01')) 
 
 mean_secchi <- mean(dat$secchi_m, na.rm = TRUE)
 mean_secchi
@@ -126,7 +127,7 @@ for(i in 1:length(test_vars)){
   }
 }
 
-write.csv(out, './data/model_output.csv', row.names = FALSE)
+write.csv(out, './data/model_output_MS.csv', row.names = FALSE)
 
 
 
