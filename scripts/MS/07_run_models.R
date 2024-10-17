@@ -127,7 +127,7 @@ for(i in 1:length(test_vars)){
   }
 }
 
-write.csv(out, './data/model_output_MS.csv', row.names = FALSE)
+write.csv(out, './data/model_output.csv', row.names = FALSE)
 
 
 
