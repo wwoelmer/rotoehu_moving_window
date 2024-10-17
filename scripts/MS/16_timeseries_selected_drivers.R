@@ -16,7 +16,7 @@ data$decade <- getDecade(data$year)
 
 select_vars <-  c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
                   "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
-                  "schmidt_stability", "sum_alum")
+                  "sum_alum")
 
 data_long <- data %>% 
   filter(decade!=2020) %>% 
@@ -26,10 +26,10 @@ data_long <- data %>%
 data_long$variable <- factor(data_long$variable, 
                              levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
                                         "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
-                                        "schmidt_stability", "sum_alum"),
+                                        "sum_alum"),
                              labels = c("bottom DRP", "bottom NH4", "bottom water temp",
                                         "mean air temp", "min windspeed", "monthly water level", 
-                                        "schmidt stability", "alum dosed"))
+                                         "alum dosed"))
 
 p1 <- ggplot(data_long, aes(x = as.Date(date), y = value, color = as.factor(decade))) +
   geom_point() +
