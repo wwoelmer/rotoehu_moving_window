@@ -160,7 +160,7 @@ dat_all <- dat_all %>%
 dat_all <- dat_all %>% 
   filter(date < as.Date('2021-07-10'))
 
-p1 <- ggplot(dat_all, aes(x = as.Date(date), y = tli_annual)) +
+tli <- ggplot(dat_all, aes(x = as.Date(date), y = tli_annual)) +
   geom_point(aes(x = as.Date(date), y = tli_monthly, color = as.factor(hydroyear)), size = 2) +
   geom_line(aes(x = as.Date(date), y = tli_monthly, color = as.factor(hydroyear))) +
   geom_line(size = 1.5) +
@@ -171,12 +171,64 @@ p1 <- ggplot(dat_all, aes(x = as.Date(date), y = tli_annual)) +
        linetype = '') +
   theme(text = element_text(size = 14)) #+
   #geom_hline(aes(yintercept = mean(tli_annual), linetype = 'Mean'))
-p1
+tli
 
-ggplotly(p1)
-mean(dat_all$tli_annual)
+#################
+# make plots of each of the TLI components
+chl <- ggplot(dat_all, aes(x = as.Date(date), y = chl_mgm3, color = as.factor(hydroyear))) +
+  geom_point(size = 2) +
+  geom_line() +
+  theme_bw() +
+  xlab('Date') +
+  ylab('Chlorophyll-a (ug/L)') +
+  labs(color = 'Year',
+       linetype = '') +
+  theme(text = element_text(size = 12),
+        legend.position = 'none')
 
-ggsave('./figures/figure2_tli_1990_2021.png', p1, dpi = 300, units = 'mm', height = 300, width = 500, scale = 0.5)
+tn <- ggplot(dat_all, aes(x = as.Date(date), y = TN_mgm3, color = as.factor(hydroyear))) +
+  geom_point(size = 2) +
+  geom_line() +
+  theme_bw() +
+  xlab('Date') +
+  ylab('Total Nitrogen (ug/L)') +
+  labs(color = 'Year',
+       linetype = '') +
+  theme(text = element_text(size = 12),
+        legend.position = 'none')
+tn
+
+tp <- ggplot(dat_all, aes(x = as.Date(date), y = TP_mgm3, color = as.factor(hydroyear))) +
+  geom_point(size = 2) +
+  geom_line() +
+  theme_bw() +
+  xlab('Date') +
+  ylab('Total Phosphorus (ug/L)') +
+  labs(color = 'Year',
+       linetype = '') +
+  theme(text = element_text(size = 12),
+        legend.position = 'none')
+tp
+
+secchi <- ggplot(dat_all, aes(x = as.Date(date), y = secchi_m, color = as.factor(hydroyear))) +
+  geom_point(size = 2) +
+  geom_line() +
+  theme_bw() +
+  xlab('Date') +
+  ylab('Secchi Depth (m)') +
+  labs(color = 'Year',
+       linetype = '') +
+  theme(text = element_text(size = 12),
+        legend.position = 'none')
+secchi
+
+components <- ggarrange(chl, secchi, tn, tp, labels = 'auto')
+p1 <- ggarrange(components, tli, ncol = 1, labels = 'auto')
+
+ggsave('./figures/figure2_tli_1990_2021.png', p1, dpi = 300, units = 'mm', 
+       height = 500, width = 350, scale = 0.6)
+ggsave('./figures/figure2_tli_1990_2021.png', p1, dpi = 300, units = 'mm', 
+       height = 200, width = 500, scale = 0.8)
 
 #############################################################################################
 write.csv(dat_all, './data/processed_data/rotoehu_tli_1990_2021.csv', row.names = FALSE)
