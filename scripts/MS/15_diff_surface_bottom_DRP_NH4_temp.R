@@ -19,7 +19,18 @@ diff_nutrients <- data %>%
   xlab('Date') +
   ylab('Top - Bottom Concentration (ug/L)') +
   geom_vline(aes(xintercept = as.Date('2000-01-01')))
-diff
+diff_nutrients
+
+mean_diff <- data %>% 
+  pivot_longer(diff_DRP:diff_NH4, names_to = 'variable', values_to = 'value') %>% 
+  select(date, variable, value) %>% 
+  group_by(variable) %>% 
+  summarise(mean = mean(value, na.rm = TRUE),
+            min = min(value, na.rm = TRUE),
+            max = max(value, na.rm = TRUE))
+mean_diff  
+
+
 ggsave('./figures/figureS6_diff_surface_bottom_nutrients.png', diff_nutrients,
        dpi = 300, units = 'mm', height = 300, width = 600, scale = 0.3)
 
