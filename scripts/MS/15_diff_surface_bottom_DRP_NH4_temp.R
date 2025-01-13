@@ -37,6 +37,7 @@ ggsave('./figures/figureS6_diff_surface_bottom_nutrients.png', diff_nutrients,
 diff_temp <- data %>% 
   ggplot(aes(x = as.Date(date), y = diff_temp)) +
   geom_line() +
+  geom_smooth(method = 'lm') +
   geom_point() +
   theme_bw() +
   xlab('Date') +
