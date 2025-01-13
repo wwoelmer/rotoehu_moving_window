@@ -92,12 +92,12 @@ ggplot(df_long, aes(x = as.factor(decade), y = value, fill = as.factor(decade)))
 # plot correlations
 
 decades <- c('90', '2000', '2010', 'all')
+df <- df %>% 
+  select(tli_monthly, everything())
+
 vars_out <- data.frame(variable = NA,
                        value = NA,
                        decade = NA)
-
-df <- df %>% 
-  select(tli_monthly, everything())
 
 for(i in 1:length(decades)){
   if(decades[i]!='all'){
@@ -114,11 +114,16 @@ for(i in 1:length(decades)){
                 year, soi_phase, top_TP_ugL, top_TN_ugL, chla_ugL_INT, secchi_m,
                 de_trended_temp_anomaly, lake, site))
   }
+  
+  if(decades[i]!='2010'){
+    cor_df <- cor_df %>% 
+      select(-sum_alum)
+  }
   print(decades[i])
   print(nrow(cor_df))
   
   cor_df <- na.omit(cor_df)
-  cor_out <- rcorr(as.matrix(cor_df)) # default is pearson
+  cor_out <- rcorr(as.matrix(cor_df), type = 'spearman') # default is pearson
   try(corrplot::corrplot(cor_out$r, type = 'upper',
                          sig.level = 0.01, insig = 'blank', p.mat = cor_out$P,  
                          main = paste0('Decade: ', decades[i], "'s")), silent = TRUE)
