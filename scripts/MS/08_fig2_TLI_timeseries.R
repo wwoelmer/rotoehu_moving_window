@@ -99,36 +99,6 @@ dat2 <- dat2 %>%
 # combine data sources
 dat_90s <- full_join(dat_wide, dat2)
 
-tp <- ggplot(dat_90s, aes(x = date, y = TP_mgm3, color = as.factor(hydroyear))) +
-  geom_point() +
-  geom_line()+
-  labs(color = 'Year') +
-  theme_bw()+
-  theme(text = element_text(size = 14))
-
-tn <- ggplot(dat_90s, aes(x = date, y = TN_mgm3, color = as.factor(hydroyear))) +
-  geom_point() +
-  geom_line()+
-  labs(color = 'Year') +
-  theme_bw()+
-  theme(text = element_text(size = 14))
-
-chl <- ggplot(dat_90s, aes(x = date, y = chl_mgm3, color = as.factor(hydroyear))) +
-  geom_point() +
-  geom_line()+
-  labs(color = 'Year') +
-  theme_bw()+
-  theme(text = element_text(size = 14))
-
-secchi <- ggplot(dat_90s, aes(x = date, y = secchi_m, color = as.factor(hydroyear))) +
-  geom_point() +
-  geom_line() +
-  labs(color = 'Year') +
-  theme_bw()+
-  theme(text = element_text(size = 14))
-
-p_vars <- ggarrange(tn, tp, chl, secchi, common.legend = TRUE)
-p_vars
 
 ###################################################################################################
 # combine with data from 2001 onward
@@ -185,7 +155,7 @@ chl <- ggplot(dat_all, aes(x = as.Date(date), y = chl_mgm3, color = as.factor(hy
        linetype = '') +
   theme(text = element_text(size = 12),
         legend.position = 'none')
-
+ggplotly(chl)
 tn <- ggplot(dat_all, aes(x = as.Date(date), y = TN_mgm3, color = as.factor(hydroyear))) +
   geom_point(size = 2) +
   geom_line() +
@@ -196,7 +166,7 @@ tn <- ggplot(dat_all, aes(x = as.Date(date), y = TN_mgm3, color = as.factor(hydr
        linetype = '') +
   theme(text = element_text(size = 12),
         legend.position = 'none')
-tn
+ggplotly(tn)
 
 tp <- ggplot(dat_all, aes(x = as.Date(date), y = TP_mgm3, color = as.factor(hydroyear))) +
   geom_point(size = 2) +
@@ -208,7 +178,7 @@ tp <- ggplot(dat_all, aes(x = as.Date(date), y = TP_mgm3, color = as.factor(hydr
        linetype = '') +
   theme(text = element_text(size = 12),
         legend.position = 'none')
-tp
+ggplotly(tp)
 
 secchi <- ggplot(dat_all, aes(x = as.Date(date), y = secchi_m, color = as.factor(hydroyear))) +
   geom_point(size = 2) +
@@ -220,7 +190,7 @@ secchi <- ggplot(dat_all, aes(x = as.Date(date), y = secchi_m, color = as.factor
        linetype = '') +
   theme(text = element_text(size = 12),
         legend.position = 'none')
-secchi
+ggplotly(secchi)
 
 components <- ggarrange(chl, secchi, tn, tp, labels = 'auto')
 p1 <- ggarrange(components, tli, ncol = 1, labels = 'auto')
