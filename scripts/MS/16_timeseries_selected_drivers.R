@@ -31,10 +31,32 @@ data_long$variable <- factor(data_long$variable,
                                         "mean air temp", "min windspeed", "monthly water level", 
                                          "alum dosed"))
 
-p1 <- ggplot(data_long, aes(x = as.Date(date), y = value, color = as.factor(decade))) +
+# calculate trends in variables
+# Function for Mann-Kendall trend test
+test_trend <- function(df) {
+  library(Kendall)
+  MannKendall(df$value)
+}
+
+data_split <- split(data_long, data_long$variable)
+trends <- lapply(data_split, test_trend)
+trends
+
+trends_df <- lapply(names(trends), function(var){
+  out <- trends[[var]]
+  data.frame(variable = var,
+             tau = round(out$tau, 3),
+             p_value = round(out$sl, 3))
+}) %>% 
+  bind_rows()
+
+trends_df
+write.csv(trends_df, './figures/driver_trends.csv', row.names = FALSE)
+
+p1 <- ggplot(data_long, aes(x = as.Date(date), y = value, color = as.factor(hydroyear))) +
   geom_point() +
   geom_line() +
-  scale_color_manual(values = c('#B40F20', '#90A959',  '#E49436')) +
+  #scale_color_manual(values = c('#B40F20', '#90A959',  '#E49436')) +
   facet_wrap(~variable, ncol = 1, scales = 'free_y') +
   theme_bw() +
   labs(color = 'Decade') +
