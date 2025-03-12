@@ -130,14 +130,24 @@ dat_all <- dat_all %>%
 dat_all <- dat_all %>% 
   filter(date < as.Date('2021-07-10'))
 
+# calculate decade
+getDecade <- function(year) {
+  year <- ifelse(year<2000, year-1900, year)
+  decade <- floor(year/10) * 10
+  return (decade)
+}
+
+dat_all$decade <- getDecade(year(dat_all$date))
+
 tli <- ggplot(dat_all, aes(x = as.Date(date), y = tli_annual)) +
-  geom_point(aes(x = as.Date(date), y = tli_monthly, color = as.factor(hydroyear)), size = 2) +
-  geom_line(aes(x = as.Date(date), y = tli_monthly, color = as.factor(hydroyear))) +
+  geom_point(aes(x = as.Date(date), y = tli_monthly, color = as.factor(decade)), size = 2) +
+  geom_line(aes(x = as.Date(date), y = tli_monthly, color = as.factor(decade))) +
   geom_line(size = 1.5) +
   theme_bw() +
+  scale_color_manual(values = c('#B40F20', '#90A959',  '#E49436', 'goldenrod')) +
   xlab('Date') +
   ylab('Trophic Level Index') +
-  labs(color = 'Year',
+  labs(color = 'Decade',
        linetype = '') +
   theme(text = element_text(size = 14)) #+
   #geom_hline(aes(yintercept = mean(tli_annual), linetype = 'Mean'))
@@ -145,21 +155,23 @@ tli
 
 #################
 # make plots of each of the TLI components
-chl <- ggplot(dat_all, aes(x = as.Date(date), y = chl_mgm3, color = as.factor(hydroyear))) +
+chl <- ggplot(dat_all, aes(x = as.Date(date), y = chl_mgm3, color = as.factor(decade))) +
   geom_point(size = 2) +
   geom_line() +
   theme_bw() +
   xlab('Date') +
   ylab('Chlorophyll-a (ug/L)') +
+  scale_color_manual(values = c('#B40F20', '#90A959',  '#E49436', 'goldenrod')) +
   labs(color = 'Year',
        linetype = '') +
   theme(text = element_text(size = 12),
         legend.position = 'none')
 ggplotly(chl)
-tn <- ggplot(dat_all, aes(x = as.Date(date), y = TN_mgm3, color = as.factor(hydroyear))) +
+tn <- ggplot(dat_all, aes(x = as.Date(date), y = TN_mgm3, color = as.factor(decade))) +
   geom_point(size = 2) +
   geom_line() +
   theme_bw() +
+  scale_color_manual(values = c('#B40F20', '#90A959',  '#E49436', 'goldenrod')) +
   xlab('Date') +
   ylab('Total Nitrogen (ug/L)') +
   labs(color = 'Year',
@@ -168,10 +180,11 @@ tn <- ggplot(dat_all, aes(x = as.Date(date), y = TN_mgm3, color = as.factor(hydr
         legend.position = 'none')
 ggplotly(tn)
 
-tp <- ggplot(dat_all, aes(x = as.Date(date), y = TP_mgm3, color = as.factor(hydroyear))) +
+tp <- ggplot(dat_all, aes(x = as.Date(date), y = TP_mgm3, color = as.factor(decade))) +
   geom_point(size = 2) +
   geom_line() +
   theme_bw() +
+  scale_color_manual(values = c('#B40F20', '#90A959',  '#E49436', 'goldenrod')) +
   xlab('Date') +
   ylab('Total Phosphorus (ug/L)') +
   labs(color = 'Year',
@@ -180,12 +193,13 @@ tp <- ggplot(dat_all, aes(x = as.Date(date), y = TP_mgm3, color = as.factor(hydr
         legend.position = 'none')
 ggplotly(tp)
 
-secchi <- ggplot(dat_all, aes(x = as.Date(date), y = secchi_m, color = as.factor(hydroyear))) +
+secchi <- ggplot(dat_all, aes(x = as.Date(date), y = secchi_m, color = as.factor(decade))) +
   geom_point(size = 2) +
   geom_line() +
   theme_bw() +
   xlab('Date') +
   ylab('Secchi Depth (m)') +
+  scale_color_manual(values = c('#B40F20', '#90A959',  '#E49436', 'goldenrod')) +
   labs(color = 'Year',
        linetype = '') +
   theme(text = element_text(size = 12),
@@ -194,11 +208,76 @@ ggplotly(secchi)
 
 components <- ggarrange(chl, secchi, tn, tp, labels = 'auto')
 p1 <- ggarrange(components, tli, ncol = 1, labels = 'auto')
+p1
 
 ggsave('./figures/figure2_tli_1990_2021.png', p1, dpi = 300, units = 'mm', 
        height = 500, width = 350, scale = 0.6)
-ggsave('./figures/figure2_tli_1990_2021.png', p1, dpi = 300, units = 'mm', 
-       height = 200, width = 500, scale = 0.8)
+
 
 #############################################################################################
 write.csv(dat_all, './data/processed_data/rotoehu_tli_1990_2021.csv', row.names = FALSE)
+
+
+# calculate individual TLi components
+dat_all <- dat_all %>% 
+  group_by(date) %>% 
+  mutate(TLI_tp = 0.218+2.92*log10(TN_mgm3 ),
+         TLI_tn = -3.61+3.01*log10(TP_mgm3 ),
+         TLI_chl = 2.22+2.54*log10(chl_mgm3 ),
+         TLI_secchi = 5.56+2.6*log10(1/secchi_m - 1/40) ) %>% 
+  ungroup()
+
+dat_long <- dat_all %>% 
+  pivot_longer(TLI_tp:TLI_secchi, names_to = 'TLI_var', values_to = 'value')
+
+tli_parts <- ggplot(dat_long, aes(x = as.Date(date), y = value, color = as.factor(hydroyear))) +
+  geom_point() +
+  geom_point(size = 2) +
+  facet_wrap(~TLI_var) +
+  geom_line() +
+  theme_bw() +
+  xlab('Date') +
+  labs(color = 'Year',
+       linetype = '') +
+  theme(text = element_text(size = 12),
+        legend.position = 'none')
+
+ggplot(dat_long, aes(x = as.Date(date), y = value, color = TLI_var)) +
+  geom_point() +
+  geom_point(size = 2) +
+  geom_line() +
+  theme_bw() +
+  xlab('Date') +
+  labs(color = 'Year',
+       linetype = '') +
+  theme(text = element_text(size = 12),
+        legend.position = 'none')
+
+tli_parts
+
+ggsave('./figures/figureSX_tli_components_1990_2022.png', tli_parts, dpi = 300, units = 'mm', 
+       height = 200, width = 300, scale = 0.8)
+
+##### calculate trends
+data_split <- split(dat_long, dat_long$TLI_var)
+
+# Function for Mann-Kendall trend test
+test_trend <- function(df) {
+  MannKendall(df$value)
+}
+
+trends <- lapply(data_split, test_trend)
+trends
+
+# format the df
+trends_df <- lapply(names(trends), function(var){
+  out <- trends[[var]]
+  data.frame(variable = var,
+             tau = round(out$tau, 3),
+             p_value = round(out$sl, 3))
+}) %>% 
+  bind_rows()
+
+trends_df
+
+write.csv(trends_df, './figures/trend_output_tli_components.csv', row.names = FALSE)
