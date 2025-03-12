@@ -33,7 +33,7 @@ data_long$variable <- factor(data_long$variable,
                                   "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
                                   "sum_alum"),
                        labels = c("Bottom DRP (µg/L)", "Bottom NH4 (µg/L)", "Bottom Water Temp (°C)",
-                                  "Mean Air Temp (°C)", "Min Windspeed (m2/s)", "Water Level (m)", 
+                                  "Mean Air Temp (°C)", "Min Windspeed (m/s)", "Water Level (m)", 
                                   "Alum Dosed (L/day)"))
 
 # check for normality
@@ -82,7 +82,7 @@ whole <- ggplot(data_long, aes(x = value, y = tli_monthly, color = variable)) +
   theme(legend.position = 'none')
 whole
 
-ggsave('./figures/figure3_drivers_vs_tli.png', whole,
+ggsave('./figures/figure4_drivers_vs_tli.png', whole,
        dpi = 300, units = 'mm', height = 450, width = 450, scale = 0.4)
 ####################################################################################
 # look at this during a time period where a non-significant variable increased in importance (e.g., water level)
