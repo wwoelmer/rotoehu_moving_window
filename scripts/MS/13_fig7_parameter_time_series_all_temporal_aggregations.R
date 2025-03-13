@@ -3,7 +3,7 @@ library(tidyverse)
 library(plotly)
 library(RColorBrewer)
 
-out <- read.csv('./data/model_output.csv')
+out <- read.csv('./data/model_output_moving_window.csv')
 
 test_vars <- c("bottom_DRP_ugL", "bottom_NH4_ugL",
                "temp_C_8", "air_temp_mean", "windspeed_min", 
@@ -42,7 +42,6 @@ params <- out %>%
         legend.position = 'none')
 
 params
-ggplotly(params)
 
 ggsave('./figures/figure7_parameter_time_series.png', params, dpi = 300, units = 'mm', 
        height = 400, width = 550, scale = 0.4)
@@ -102,12 +101,12 @@ out_all$timeperiod <- factor(out_all$timeperiod, levels = c('Full period',
 
 ggplot() +
   geom_histogram(data = out_all[out_all$timeperiod=='Moving window',],
-                 aes(y = value, fill = timeperiod)) +
-  facet_wrap(~id_covar, scales = 'free_y') +
-   geom_point(data = out_all[out_all$timeperiod!='Moving window',],
-             aes(x = 0, y = value, shape = timeperiod, color = timeperiod),
+                 aes(x = value, fill = timeperiod)) +
+  facet_wrap(~id_covar, scales = 'free_x') +
+  geom_point(data = out_all[out_all$timeperiod!='Moving window',],
+             aes(y = 0, x = value, shape = timeperiod, color = timeperiod),
              size = 3) +
-  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
   scale_fill_manual(values = '#4575b4') +
   scale_color_manual(values = c('#d73027', '#fdae61')) +
   theme_bw() +
@@ -116,5 +115,5 @@ ggplot() +
   guides(color = guide_legend(title = "Time Period", order = 1),  # Combine legends
          shape = guide_legend(title = "Time Period", order = 1),
          fill = guide_legend(title = NULL, order = 2)) +
-  theme(text=element_text(size=15),
+  theme(text=element_text(size=14),
         legend.spacing = unit(0, "cm"))
