@@ -78,8 +78,6 @@ out_three$id_covar <- factor(out_three$id_covar,
                                   "Mean Air Temp", "Min Windspeed", "Water Level", 
                                   "Alum Dosed", "None"))
 
-# update color pal so 'none' is the grey color
-col_pal <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#F781BF", "#999999")
 ################################################################################
 # calculate the difference across variables
 out_prop3 <- out_three %>% 
@@ -116,6 +114,7 @@ delta_aic3 <- ggplot(out_prop3, aes(x = as.factor(year(start_date)), y = diff_fr
   geom_point(aes(color =  significant), size = 3) +
   facet_wrap(~id_covar) +
   theme_bw() +
+  ylim(-20, 2) +
   ylab(expression(Delta~AIC[c])) +
   xlab('Window start date') +
   theme(text=element_text(size=12),
@@ -167,15 +166,16 @@ ggplot(out_prop_full, aes(x = (start_date), y = diff_from_none_aic)) +
   scale_color_manual(values = col_pal) +
   labs(color = 'Driver')
 
-delta_aic_full <- ggplot(out_prop_full, aes(x = (id_covar), y = diff_from_none_aic)) +
+delta_aic_full <- ggplot(out_prop_full, aes(x = (start_date), y = diff_from_none_aic)) +
   geom_rect(aes(xmin = -Inf, xmax = Inf, 
                 ymin = -2, ymax = 2), alpha = 0.8, fill = "grey") +
   geom_hline(aes(yintercept = 0)) +
   geom_point(aes(color =  significant), size = 3) +
-  #facet_wrap(~id_covar) +
+  facet_wrap(~id_covar) +
   theme_bw() +
   ylab(expression(Delta~AIC[c])) +
   xlab('Variable') +
+  ylim(-20, 2) +
   theme(text=element_text(size=14),
         axis.text.x = element_text(angle = 45, hjust = 1)) +
   #scale_color_manual(values = col_pal) +
@@ -184,7 +184,7 @@ delta_aic_full <- ggplot(out_prop_full, aes(x = (id_covar), y = diff_from_none_a
 delta_aic_full
 
 ggarrange(delta_aic_full, delta_aic3, delta_aic, common.legend = TRUE, 
-          nrow = 1, widths = c(1.5, 3, 3),
+          nrow = 1, #widths = c(1.5, 3, 3),
           labels = 'auto')
 
 #######################################################################################
