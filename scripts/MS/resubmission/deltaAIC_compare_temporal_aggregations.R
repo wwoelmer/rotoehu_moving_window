@@ -151,12 +151,8 @@ ggarrange(delta_aic_full, delta_aic3, delta_aic, common.legend = TRUE,
 out_prop_all <- full_join(out_prop, out_prop3)
 out_prop_all <- full_join(out_prop_all, out_prop_full)
 
-# create column which distinguishes among the discrete windows
-out_prop_all <- out_prop_all %>% 
-  mutate(window = )
 
-
-ggplot() +
+p1 <- ggplot() +
   geom_rect(data = out_prop_all[out_prop_all$timeperiod=='Moving window' 
                                 & out_prop_all$id_covar!='None',],
             aes(xmin = min(as.Date(start_date)), xmax = max(as.Date(end_date)), 
@@ -175,12 +171,17 @@ ggplot() +
   facet_wrap(~id_covar, scales = 'free') +
   theme_bw() +
   ylab(expression(Delta~AIC[c])) +
-  xlab('Start of Iteration') +
+  xlab('Date') +
   theme(text=element_text(size=14)) +
   #scale_color_manual(values = col_pal) +
   scale_color_manual(values = c('#fdae61','#d73027', '#4575b4')) 
 
-ggplot(out_prop_all, aes(x = as.Date(start_date), y = diff_from_none_aic, color = significant)) +
+p1
+
+ggsave('./figures/resubmission/all_windows_delta_aic.png', p1,
+       dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.6)
+
+p2 <- ggplot(out_prop_all, aes(x = as.Date(start_date), y = diff_from_none_aic, color = significant)) +
   geom_rect(data = out_prop_all[out_prop_all$timeperiod=='Moving window',],
             aes(xmin = min(as.Date(start_date)), xmax = max(as.Date(start_date)), 
                 ymin = -2, ymax = 2), alpha = 0.8, fill = "grey") +
@@ -193,10 +194,12 @@ ggplot(out_prop_all, aes(x = as.Date(start_date), y = diff_from_none_aic, color 
   theme(text=element_text(size=14)) +
   #scale_color_manual(values = col_pal) +
   scale_color_manual(values = c('#6C5379', '#5FAD56')) 
+p2
 
+ggsave('./figures/resubmission/movingwindow_delta_aic_significance.png', p2,
+       dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.6)
 
-col_pal <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#F781BF", "#999999")
-
+################################################################################
 out_prop %>% 
   filter(significant=='TRUE') %>% 
   ggplot(aes(x = as.Date(start_date), y = diff_from_none_aic, color = id_covar)) +

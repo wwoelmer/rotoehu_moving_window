@@ -2,6 +2,7 @@
 library(tidyverse)
 library(plotly)
 library(RColorBrewer)
+library(ggpubr)
 
 out <- read.csv('./data/model_output_moving_window.csv')
 
@@ -65,7 +66,7 @@ out %>%
 out_mw <- out %>% 
   filter(covar %in% test_vars) %>% 
   mutate(timeperiod = 'Moving window') %>% 
-  select(id_covar, value, timeperiod, start_date)
+  select(id_covar, value, timeperiod, start_date, std_error)
 
 outfull <- read.csv('./data/model_output_full.csv') 
 outfull <- outfull %>% 
@@ -99,21 +100,63 @@ out_all$timeperiod <- factor(out_all$timeperiod, levels = c('Full period',
                                                             'Discrete window',
                                                             'Moving window'))
 
-ggplot() +
+p1 <- ggplot() +
   geom_histogram(data = out_all[out_all$timeperiod=='Moving window',],
                  aes(x = value, fill = timeperiod)) +
   facet_wrap(~id_covar, scales = 'free_x') +
   geom_point(data = out_all[out_all$timeperiod!='Moving window',],
              aes(y = 0, x = value, shape = timeperiod, color = timeperiod),
              size = 3) +
+  #geom_errorbar(data = out_all[out_all$timeperiod!='Moving window',],
+  #              aes(xmin = value - std_error, xmax = value + std_error, 
+  #                  y = 0, color = timeperiod),
+  #              linewidth = 1.2) +  # Error bars
   geom_vline(xintercept = 0) +
   scale_fill_manual(values = '#4575b4') +
   scale_color_manual(values = c('#d73027', '#fdae61')) +
   theme_bw() +
-  ylab('Parameter Value') +
-  xlab('Frequency') +
+  xlab('Parameter Value') +
+  ylab('Frequency') +
   guides(color = guide_legend(title = "Time Period", order = 1),  # Combine legends
          shape = guide_legend(title = "Time Period", order = 1),
          fill = guide_legend(title = NULL, order = 2)) +
   theme(text=element_text(size=14),
         legend.spacing = unit(0, "cm"))
+p1
+ggsave('./figures/resubmission/parameters_across_all_windows.png', p1,
+       dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.6)
+
+
+param_table <- out_all %>% 
+  select(id_covar, timeperiod, start_date, value, std_error)
+param_table_wide <- param_table %>% 
+  pivot_wider(names_from = timeperiod, values_from = c('value', 'std_error'))
+
+colnames(param_table_wide) <- c('Variable', 'Window start date',
+                                'Paramater MW', 'Parameter full', 'Parameter DW',
+                                'Std error MW', 'Std error full', 'Std error DW')
+
+ggplot(param_table, aes(x = std_error, fill = timeperiod)) +
+  geom_histogram(position = 'dodge') +
+  facet_wrap(~id_covar, scales = 'free')
+
+a <- ggplot(param_table, aes(x = as.Date(start_date), y = std_error, color = timeperiod)) +
+  geom_point() +
+  facet_wrap(~id_covar, scales = 'free') +
+  scale_color_manual(values = c('#d73027', '#fdae61', '#4575b4')) +
+  theme_bw() +
+  xlab('Window start date') +
+  ylab('Parameter standard error')
+
+b <- ggplot(param_table, aes(x = as.Date(start_date), y = value, color = timeperiod)) +
+  geom_point() +
+  facet_wrap(~id_covar, scales = 'free') +
+  scale_color_manual(values = c('#d73027', '#fdae61', '#4575b4')) +
+  theme_bw() +
+  xlab('Window start date') +
+  ylab('Parameter value')
+
+p2 <- ggarrange(b, a, common.legend = TRUE)
+ggsave('./figures/resubmission/si_figs/parameter_values_std_error.png', p2,
+       dpi = 300, units = 'mm', height = 300, width = 600, scale = 0.5)
+

@@ -45,6 +45,22 @@ out_rank <- plyr::ddply(out_prop_AR, c("id_covar", "rank_AR"), \(x) {
 num_ranks <- length(unique(out_rank$rank_AR))
 rank_pal <- colorRampPalette(brewer.pal(9, "YlGnBu"))(num_ranks)
 
+out_rank <- out_rank %>% 
+  group_by(rank_AR) %>% 
+  arrange(pct) %>% 
+  group_by(id_covar) %>% 
+  mutate(sum_r2 = sum(pct*rank_AR))
+
+rank <- ggplot(out_rank, aes(x = reorder(id_covar, sum_r2), y = pct, fill = fct_rev(as.factor(rank_AR)))) +
+  geom_bar(stat = 'identity') +
+  scale_fill_manual(values = rank_pal) +
+  theme_bw() +
+  ylab('Percent of time') +
+  xlab('Driver') +
+  labs(fill = 'Rank') +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.55)) 
+rank
+
 col_pal <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#F781BF", "#999999")
 
 b <- ggplot(out_prop, aes(x = rank_AR, y = id_covar, fill = id_covar)) +
@@ -58,7 +74,7 @@ b <- ggplot(out_prop, aes(x = rank_AR, y = id_covar, fill = id_covar)) +
   labs(fill = 'Driver') +
   xlab('Rank') +
   ylab("") +
-  ggtitle('Moving windows') +
+  #ggtitle('Moving windows') +
   theme(legend.position = 'none')
 b
 
@@ -90,38 +106,13 @@ out_prop3 <- out3 %>%
          diff_from_none_aic = aic - aic_none,
          rank_aic = dense_rank(desc(diff_from_none_aic*-1))) #multiply by -1 to change the sign so positive is good for ranking purposes
 
-# rank variables based on differences in R2 and AICc
-
-out_prop_AR3 <- out_prop3 %>% 
-  select(id_covar:rank_AR)
-
-out_rank3 <- plyr::ddply(out_prop_AR3, c("id_covar", "rank_AR"), \(x) {
-  n <- nrow(x)
-  pct <- round(n/length(unique(out_prop$iter_start))*100)
-  return(data.frame(pct = pct))
-})
-
-
-# define colors for the right number of ranks
-## define color palettes for the right number of variables
-num_ranks <- length(unique(out_rank3$rank_AR))
-rank_pal <- colorRampPalette(brewer.pal(9, "YlGnBu"))(num_ranks)
-
-out_rank3 <- out_rank3 %>% 
-  group_by(rank_AR) %>% 
-  arrange(pct) %>% 
-  group_by(id_covar) %>% 
-  mutate(sum_r2 = sum(pct*rank_AR))
-
-
-col_pal <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#F781BF", "#999999")
 
 b3 <- ggplot(out_prop3, aes(x = rank_AR, y = id_covar, color = id_covar)) +
   #geom_point(data = out_prop, aes(x = rank_AR, y = id_covar), alpha = 0.1) +
   geom_point(size = 4) +
   scale_color_manual(values = col_pal) +
   theme_bw() +
-  facet_wrap(~start_date) +
+  facet_wrap(~start_date, ncol = 1) +
   scale_x_continuous(breaks = (1:9),  # Specify breaks for y-axis
                      labels = (1:9)) +
   labs(fill = 'Driver') +
@@ -159,33 +150,7 @@ out_prop_full <- outfull %>%
          diff_from_none_aic = aic - aic_none,
          rank_aic = dense_rank(desc(diff_from_none_aic*-1))) #multiply by -1 to change the sign so positive is good for ranking purposes
 
-# rank variables based on differences in R2 and AICc
-out_prop_AR_full <- out_prop_full %>% 
-  select(id_covar:rank_AR)
-
-out_rank_full <- plyr::ddply(out_prop_AR_full, c("id_covar", "rank_AR"), \(x) {
-  n <- nrow(x)
-  pct <- round(n/length(unique(out_prop$iter_start))*100)
-  return(data.frame(pct = pct))
-})
-
-
-# define colors for the right number of ranks
-## define color palettes for the right number of variables
-num_ranks <- length(unique(out_rank_full$rank_AR))
-rank_pal <- colorRampPalette(brewer.pal(9, "YlGnBu"))(num_ranks)
-
-out_rank_full <- out_rank_full %>% 
-  group_by(rank_AR) %>% 
-  arrange(pct) %>% 
-  group_by(id_covar) %>% 
-  mutate(sum_r2 = sum(pct*rank_AR))
-
-
-col_pal <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#F781BF", "#999999")
-
-
-bfull <- ggplot(out_rank_full, aes(x = rank_AR, y = id_covar, color = id_covar)) +
+bfull <- ggplot(out_prop_full, aes(x = rank_AR, y = id_covar, color = id_covar)) +
   geom_point(size = 4) +
   scale_color_manual(values = col_pal) +
   theme_bw() +
@@ -199,4 +164,32 @@ bfull <- ggplot(out_rank_full, aes(x = rank_AR, y = id_covar, color = id_covar))
 bfull
 
 ###############################################################################
-ggarrange(bfull, b3, b, ncol = 1, labels = 'auto')
+## combine discrete windows and full window
+out_prop3$timeperiod <- out_prop3$start_date
+out_prop_full$timeperiod <- 'Full window'
+out_prop_3_full <- full_join(out_prop3, out_prop_full)
+
+bfull_3 <- ggplot(out_prop_3_full, aes(x = rank_AR, y = id_covar, color = id_covar)) +
+  #geom_point(data = out_prop, aes(x = rank_AR, y = id_covar), alpha = 0.1) +
+  geom_point(size = 4) +
+  scale_color_manual(values = col_pal) +
+  theme_bw() +
+  facet_wrap(~timeperiod, ncol = 1) +
+  scale_x_continuous(breaks = (1:9),  # Specify breaks for y-axis
+                     labels = (1:9)) +
+  labs(fill = 'Driver') +
+  xlab('Rank') +
+  ylab("") +
+  theme(legend.position = 'none') 
+bfull_3
+
+p1 <- ggarrange(bfull_3, b,
+          widths = c(1.5, 2),
+          labels = 'auto')
+
+ggsave('./figures/resubmission/rank_across_all_windows.png', p1,
+       dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.6)
+rank
+
+ggsave('./figures/resubmission/pct_rank.png', rank,
+       dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.4)
