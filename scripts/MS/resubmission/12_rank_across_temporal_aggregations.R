@@ -79,6 +79,50 @@ b <- ggplot(out_prop, aes(x = rank_AR, y = id_covar, fill = id_covar)) +
 b
 
 ################################################################################
+## repeat for full time period
+
+outfull <- read.csv('./data/model_output_full.csv')
+# set up labels and levels of factor
+
+outfull$id_covar <- factor(outfull$id_covar, 
+                           levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
+                                      "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
+                                      "sum_alum", "none"),
+                           labels = c("Bottom DRP", "Bottom NH4", "Bottom Water Temp",
+                                      "Mean Air Temp", "Min Windspeed", "Water Level", 
+                                      "Alum Dosed", "None"))
+
+
+# calculate the difference across variables
+out_prop_full <- outfull %>% 
+  distinct(id_covar, start_date, .keep_all = TRUE) %>% 
+  group_by(start_date) %>% 
+  mutate(diff_from_best = max(r2) - r2,
+         rank = dense_rank(desc(r2)),
+         r2_none = r2[id_covar=='None'],
+         diff_from_none = r2 - r2_none,
+         rank_AR = dense_rank(desc(diff_from_none)),
+         aic_none = aic[id_covar=='None'],
+         diff_from_none_aic = aic - aic_none,
+         rank_aic = dense_rank(desc(diff_from_none_aic*-1))) #multiply by -1 to change the sign so positive is good for ranking purposes
+
+bfull <- ggplot(out_prop_full, aes(x = rank_AR, y = reorder(id_covar, rank), color = id_covar)) +
+  geom_point(size = 4) +
+  scale_color_manual(values = col_pal) +
+  theme_bw() +
+  scale_x_continuous(breaks = (1:9),  # Specify breaks for y-axis
+                     labels = (1:9)) +
+  labs(fill = 'Driver') +
+  xlab('Rank') +
+  ylab("") +
+  theme(legend.position = 'none') +
+  ggtitle('Full time series')
+bfull
+
+order_full <- c('Bottom DRP', 'Mean Air Temp', 'Bottom Water Temp', 'Bottom NH4',
+                'Min Windspeed', 'None', 'Water Level', 'Alum Dosed')
+
+################################################################################
 ## repeat for 3 windows
 
 out3 <- read.csv('./data/model_output_three_windows.csv')
@@ -91,6 +135,10 @@ out3$id_covar <- factor(out3$id_covar,
                        labels = c("Bottom DRP", "Bottom NH4", "Bottom Water Temp",
                                   "Mean Air Temp", "Min Windspeed", "Water Level", 
                                   "Alum Dosed", "None"))
+
+# remove alum dosing results from first window which had no alum application
+out3 <- out3 %>% 
+  filter(!(start_date=='2000-07-11' & id_covar=='Alum Dosed'))
 
 # calculate the difference across variables
 out_prop3 <- out3 %>% 
@@ -122,54 +170,18 @@ b3 <- ggplot(out_prop3, aes(x = rank_AR, y = id_covar, color = id_covar)) +
   ggtitle('Three windows')
 b3
 
-################################################################################
-## repeat for full time period
-
-outfull <- read.csv('./data/model_output_full.csv')
-# set up labels and levels of factor
-
-outfull$id_covar <- factor(outfull$id_covar, 
-                           levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
-                                      "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
-                                      "sum_alum", "none"),
-                           labels = c("Bottom DRP", "Bottom NH4", "Bottom Water Temp",
-                                      "Mean Air Temp", "Min Windspeed", "Water Level", 
-                                      "Alum Dosed", "None"))
-
-
-# calculate the difference across variables
-out_prop_full <- outfull %>% 
-  distinct(id_covar, start_date, .keep_all = TRUE) %>% 
-  group_by(start_date) %>% 
-  mutate(diff_from_best = max(r2) - r2,
-         rank = dense_rank(desc(r2)),
-         r2_none = r2[id_covar=='None'],
-         diff_from_none = r2 - r2_none,
-         rank_AR = dense_rank(desc(diff_from_none)),
-         aic_none = aic[id_covar=='None'],
-         diff_from_none_aic = aic - aic_none,
-         rank_aic = dense_rank(desc(diff_from_none_aic*-1))) #multiply by -1 to change the sign so positive is good for ranking purposes
-
-bfull <- ggplot(out_prop_full, aes(x = rank_AR, y = id_covar, color = id_covar)) +
-  geom_point(size = 4) +
-  scale_color_manual(values = col_pal) +
-  theme_bw() +
-  scale_x_continuous(breaks = (1:9),  # Specify breaks for y-axis
-                     labels = (1:9)) +
-  labs(fill = 'Driver') +
-  xlab('Rank') +
-  ylab("") +
-  theme(legend.position = 'none') +
-  ggtitle('Full time series')
-bfull
 
 ###############################################################################
 ## combine discrete windows and full window
 out_prop3$timeperiod <- out_prop3$start_date
 out_prop_full$timeperiod <- 'Full window'
 out_prop_3_full <- full_join(out_prop3, out_prop_full)
+out_prop_3_full$timeperiod <- factor(out_prop_3_full$timeperiod, levels = c('Full window',
+                                                                 '2000-07-11',
+                                                                 '2007-07-24',
+                                                                 '2014-07-22'))
 
-bfull_3 <- ggplot(out_prop_3_full, aes(x = rank_AR, y = id_covar, color = id_covar)) +
+bfull_3 <- ggplot(out_prop_3_full, aes(x = rank_AR, factor(id_covar, levels = order_full), color = id_covar)) +
   #geom_point(data = out_prop, aes(x = rank_AR, y = id_covar), alpha = 0.1) +
   geom_point(size = 4) +
   scale_color_manual(values = col_pal) +
@@ -183,9 +195,25 @@ bfull_3 <- ggplot(out_prop_3_full, aes(x = rank_AR, y = id_covar, color = id_cov
   theme(legend.position = 'none') 
 bfull_3
 
-p1 <- ggarrange(bfull_3, b,
+b <- ggplot(out_prop, aes(x = rank_AR, factor(id_covar, levels = order_full), fill = id_covar)) +
+  geom_boxplot( 
+    size = 1) +
+  geom_jitter(data = out_prop, aes(x = rank_AR, y = id_covar), alpha = 0.1) +
+  scale_fill_manual(values = col_pal) +
+  theme_bw() +
+  scale_x_continuous(breaks = (1:9),  # Specify breaks for y-axis
+                     labels = (1:9)) +
+  labs(fill = 'Driver') +
+  xlab('Rank') +
+  ylab("") +
+  #ggtitle('Moving windows') +
+  theme(legend.position = 'none')
+b
+
+p1 <- ggarrange(b, bfull_3,
           widths = c(1.5, 2),
           labels = 'auto')
+p1
 
 ggsave('./figures/resubmission/rank_across_all_windows.png', p1,
        dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.6)
