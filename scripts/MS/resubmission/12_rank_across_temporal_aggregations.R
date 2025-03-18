@@ -61,22 +61,8 @@ rank <- ggplot(out_rank, aes(x = reorder(id_covar, sum_r2), y = pct, fill = fct_
   theme(axis.text.x = element_text(angle = 45, vjust = 0.55)) 
 rank
 
-col_pal <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#F781BF", "#999999")
-
-b <- ggplot(out_prop, aes(x = rank_AR, y = id_covar, fill = id_covar)) +
-  geom_boxplot( 
-    size = 1) +
-  geom_jitter(data = out_prop, aes(x = rank_AR, y = id_covar), alpha = 0.1) +
-  scale_fill_manual(values = col_pal) +
-  theme_bw() +
-  scale_x_continuous(breaks = (1:9),  # Specify breaks for y-axis
-                     labels = (1:9)) +
-  labs(fill = 'Driver') +
-  xlab('Rank') +
-  ylab("") +
-  #ggtitle('Moving windows') +
-  theme(legend.position = 'none')
-b
+ggsave('./figures/resubmission/pct_rank.png', rank,
+       dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.4)
 
 ################################################################################
 ## repeat for full time period
@@ -92,6 +78,7 @@ outfull$id_covar <- factor(outfull$id_covar,
                                       "Mean Air Temp", "Min Windspeed", "Water Level", 
                                       "Alum Dosed", "None"))
 
+col_pal <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#F781BF", "#999999")
 
 # calculate the difference across variables
 out_prop_full <- outfull %>% 
@@ -211,13 +198,10 @@ b <- ggplot(out_prop, aes(x = rank_AR, factor(id_covar, levels = order_full), fi
 b
 
 p1 <- ggarrange(b, bfull_3,
-          widths = c(1.5, 2),
+         # widths = c(1.5, 2),
           labels = 'auto')
 p1
 
 ggsave('./figures/resubmission/rank_across_all_windows.png', p1,
-       dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.6)
-rank
+       dpi = 300, units = 'mm', height = 300, width = 350, scale = 0.6)
 
-ggsave('./figures/resubmission/pct_rank.png', rank,
-       dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.4)
