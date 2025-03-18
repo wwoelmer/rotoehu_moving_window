@@ -17,69 +17,45 @@ data <- data %>%
          secchi_m = na.approx(secchi_m, na.rm = FALSE, rule = 2, maxgap = 4))
 
 # calculate TLI
-tli_obs <- data %>% 
+data <- data %>% 
   group_by(date) %>% 
   mutate(tli_obs = tli_fx(chl = chla_ugL_INT, TN = top_TN_ugL, TP = top_TP_ugL, secchi = secchi_m)) %>% 
   ungroup() %>% 
   group_by(hydroyear) %>% 
   mutate(tli_annual = tli_fx(chl = chla_ugL_INT, TN = top_TN_ugL, TP = top_TP_ugL, secchi = secchi_m)) 
 
+# select relevant vars
+select_vars <-  c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
+                  "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
+                  "sum_alum", "chla_ugL_INT", "top_TN_ugL", "top_TP_ugL",
+                  "secchi_m", "tli_obs")
 
-ts_data <- ts(tli_obs$tli_obs, start = c(year(min(tli_obs$date)), month(min(tli_obs$date))), frequency = 12)
-decomp <- decompose(ts_data)
-plot(decomp)
-
-tli_trend <- MannKendall(tli_obs$tli_obs)
-tli_trend_df <- data.frame(variable = 'TLI',
-                        tau = round(tli_trend$tau, 3),
-                        p_value = round(tli_trend$sl, 3))  
-tli_trend_df  
-################################################################################
-# trend analysis and time series decomposition for TLI components
 data_long <- data %>% 
-  pivot_longer(chla_ugL_INT:secchi_m, names_to = 'tli_var', values_to = 'value')
+  filter(date < '2021-06-30') %>% 
+  select(date, hydroyear, select_vars) %>% 
+  pivot_longer(bottom_DRP_ugL:tli_obs, names_to = 'variable', values_to = 'value')
 
-ggplot(data_long, aes(x = as.Date(date), y = value, color = tli_var)) +
+################################################################################
+# trend analysis and summary stats for variables
+
+
+ggplot(data_long, aes(x = as.Date(date), y = value, color = variable)) +
   geom_point() +
-  facet_wrap(~tli_var, scales = 'free') +
+  facet_wrap(~variable, scales = 'free') +
   theme_bw()
 
 head(data_long)
 
-# functions for ts decomposition and trend test
-# Function for time series decomposition
-decompose_ts <- function(df) {
-  ts_data <- ts(df$value, start = c(year(min(df$date)), month(min(df$date))), frequency = 12)
-  decompose(ts_data)
-}
 
-# Function for Mann-Kendall trend test
-test_trend <- function(df) {
-  MannKendall(df$value)
-}
+summ_stats <- data_long %>% 
+  group_by(variable) %>% 
+  summarise(mean = mean(value, na.rm = TRUE),
+            sd = sd(value, na.rm = TRUE),
+            n = n(),
+            trend = MannKendall(value)$tau,
+            p_value = MannKendall(value)$sl)
 
-data_split <- split(data_long, data_long$tli_var)
+summ_stats
 
-# run the time series decomposition function
-decomp <- lapply(data_split, decompose_ts)
-plot(decomp$chla_ugL_INT)
-plot(decomp$top_TN_ugL)
-plot(decomp$top_TP_ugL)
-plot(decomp$secchi_m)
-title(main = 'Secchi')
 
-trends <- lapply(data_split, test_trend)
-trends$chla_ugL_INT$tau[1]
-
-trends_df <- lapply(names(trends), function(var){
-  out <- trends[[var]]
-  data.frame(variable = var,
-             tau = round(out$tau, 3),
-             p_value = round(out$sl, 3))
-}) %>% 
-  bind_rows()
-
-trends_df
-trends_df <- rbind(tli_trend_df, trends_df)
-
-write.csv(trends_df, './figures/trend_output.csv', row.names = FALSE)
+write.csv(summ_stats, './figures/trend_output.csv', row.names = FALSE)
