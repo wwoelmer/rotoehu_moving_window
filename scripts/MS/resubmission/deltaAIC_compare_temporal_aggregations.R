@@ -87,7 +87,7 @@ delta_aic3 <- ggplot(out_prop3, aes(x = as.factor(year(start_date)), y = diff_fr
   ylim(-20, 3) +
   ylab(expression(Delta~AIC[c])) +
   xlab('Window start date') +
-  theme(text=element_text(size=12),
+  theme(text=element_text(size=14),
         #axis.text.x = element_text(angle = 45, hjust = 1)
   ) +
   #scale_color_manual(values = col_pal) +
@@ -132,7 +132,7 @@ delta_aic_full <- ggplot(out_prop_full, aes(x = (start_date), y = diff_from_none
   facet_wrap(~id_covar) +
   theme_bw() +
   ylab(expression(Delta~AIC[c])) +
-  xlab('Variable') +
+  xlab('Window start date') +
   ylim(-20, 2) +
   theme(text=element_text(size=14),
         axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -141,10 +141,13 @@ delta_aic_full <- ggplot(out_prop_full, aes(x = (start_date), y = diff_from_none
 #scale_color_manual(values = c('#08415C', '#EFCB68')) 
 delta_aic_full
 
-ggarrange(delta_aic_full, delta_aic3, delta_aic, common.legend = TRUE, 
+p_si <- ggarrange(delta_aic_full, delta_aic3, common.legend = TRUE, 
           nrow = 1, #widths = c(1.5, 3, 3),
           labels = 'auto')
+p_si
 
+ggsave('./figures/resubmission/si_figs/full_discrete_signif_aic.png', p_si,
+       dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.6)
 
 ################################################################################
 # combine so they can all be plotted together
