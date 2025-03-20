@@ -6,8 +6,6 @@ library(zoo)
 source('./scripts/functions/tli_fx.R')
 
 data <- read.csv('./data/master_rotoehu.csv')
-data <- data %>% 
-  select(date:secchi_m)
 
 # do linear interpolation on the few months without obs
 data <- data %>% 
@@ -57,5 +55,38 @@ summ_stats <- data_long %>%
 
 summ_stats
 
+# order the variables
+summ_stats$variable <- factor(
+  summ_stats$variable,
+  levels = c(
+    'tli_obs',
+    'chla_ugL_INT',
+    'secchi_m',
+    'top_TN_ugL',
+    'top_TP_ugL',
+    'bottom_DRP_ugL',
+    'bottom_NH4_ugL',
+    'temp_C_8',
+    'air_temp_mean',
+    'windspeed_min',
+    'monthly_avg_level_m',
+    'sum_alum'
+  ),
+  labels = c('TLI',
+             'Chl-a',
+             'Secchi',
+             'Total nitrogen',
+             'Total phosphorus',
+             'Bottom water DRP',
+             'Bottom water NH4',
+             'Bottom water temp',
+             'Mean air temp',
+             'Min windpseed',
+             'Water level',
+             'Alum dosed')
+)
+summ_stats <- summ_stats %>% 
+  arrange(variable)
+summ_stats
 
 write.csv(summ_stats, './figures/trend_output.csv', row.names = FALSE)
