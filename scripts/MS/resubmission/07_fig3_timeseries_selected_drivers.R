@@ -42,5 +42,5 @@ p1 <- ggplot(data_long, aes(x = as.Date(date), y = value, color = as.factor(deca
   ylab('value')
 p1
 ggplotly(p1)
-ggsave('./figures/figure3_selected_vars_decade_timeseries.png', p1, dpi = 300, 
+ggsave('./figures/resubmission/figure3_selected_vars_decade_timeseries.png', p1, dpi = 300, 
        units = 'mm', height = 800, width = 600, scale = 0.4)
