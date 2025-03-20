@@ -30,27 +30,6 @@ data_long$variable <- factor(data_long$variable,
                                         "Mean Air Temp (°C)", "Min Windspeed (m/s)", "Water Level (m)", 
                                         "Alum Dosed (L/day)"))
 
-# calculate trends in variables
-# Function for Mann-Kendall trend test
-test_trend <- function(df) {
-  library(Kendall)
-  MannKendall(df$value)
-}
-
-data_split <- split(data_long, data_long$variable)
-trends <- lapply(data_split, test_trend)
-trends
-
-trends_df <- lapply(names(trends), function(var){
-  out <- trends[[var]]
-  data.frame(variable = var,
-             tau = round(out$tau, 3),
-             p_value = round(out$sl, 3))
-}) %>% 
-  bind_rows()
-
-trends_df
-write.csv(trends_df, './figures/driver_trends.csv', row.names = FALSE)
 
 p1 <- ggplot(data_long, aes(x = as.Date(date), y = value, color = as.factor(decade))) +
   geom_point() +
