@@ -15,6 +15,15 @@ library(statcomp)
 #dat <- read.csv('./data/processed_data/BoP_wq_2007_2021.csv')
 dat <- read.csv('./data/master_rotoehu.csv')
 
+# set zeroes to NA for alum
+dat <- dat %>% 
+  mutate(sum_alum = ifelse(is.na(sum_alum), 0, sum_alum))
+
+# subset to time period of this study
+dat <- dat %>% 
+  filter(date > as.Date('2000-07-01')&
+           date < as.Date ('2021-07-01')) 
+
 #calculate hydro year
 dat$hydroyear <- as.POSIXct(dat$date) + (184*60*60*24)
 dat$hydroyear <- format(dat$hydroyear,"%Y")
@@ -26,9 +35,12 @@ dat$hydroyear_label <- paste(dat$hydroyear-1, dat$hydroyear, sep = "-")
 dat <- dat %>% 
   select(-avg_level_m)
 
+# get rid of dates that do not have all four TLi variables
+dat <- dat %>% 
+  filter(across(c(secchi_m, top_TN_ugL, top_TP_ugL, chla_ugL_INT), ~ !is.na(.)))
 
 # calculate monthly TLI
-source('./scripts/R/tli_fx.R')
+source('./scripts/functions/tli_fx.R')
 
 dat <- dat %>% 
   group_by(month, year, lake, site) %>%
@@ -38,14 +50,13 @@ dat <- dat %>%
 
 #######################################################
 # run the ar model simulation
-source('./scripts/R/run_ar.R')
+source('./scripts/functions/run_ar.R')
 
 # this set of variables comes from the decadal analysis (90s, 2000s, 2010s) plus land cover, alum, and 'none'
 test_vars <- c("bottom_DRP_ugL", "bottom_NH4_ugL",
                "temp_C_8", "air_temp_mean", "windspeed_min", 
                "monthly_avg_level_m", 
-               "schmidt_stability", 
-               "sum_alum")
+               "sum_alum", "none")
 
 id_var <- "tli_monthly"
 
@@ -56,9 +67,16 @@ n_iter <- seq(1, nrow(dat) - window_length)
 out <- data.frame()
 
 for(i in 1:length(test_vars)){
-  dat_ar <- dat %>% 
-    ungroup() %>% 
-    select(date, id_var, test_vars[i])
+  if(test_vars[i]=='none'){
+    dat_ar <- dat %>% 
+      ungroup() %>% 
+      select(date, id_var)  
+  }else{
+    dat_ar <- dat %>% 
+      ungroup() %>% 
+      select(date, id_var, test_vars[i])  
+  }
+  
   
   for(j in 1:length(n_iter)){
     
@@ -85,22 +103,40 @@ for(i in 1:length(test_vars)){
 out$id_covar <- factor(out$id_covar, 
                        levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
                                   "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
-                                  "schmidt_stability", "sum_alum"),
+                                  "sum_alum", "none"),
                        labels = c("bottom DRP", "bottom NH4", "bottom water temp",
                                   "mean air temp", "min windspeed", "monthly water level", 
-                                  "schmidt stability", "alum dosed"))
- col_no <- length(unique(out$id_covar)) + 1
+                                  "alum dosed", "None"))
+col_no <- length(unique(out$id_covar)) + 1
 col_pal <- colorRampPalette(brewer.pal(9, "Set1"))(col_no)
 
-p <- ggplot(out, aes(x = iter_start, y = r2, color = id_covar)) +
-           geom_point() +
-           scale_color_manual(values = col_pal) +
-           geom_line() +
-           theme_bw() +
-  xlab('Start of Iteration') +
-  labs(color = 'Driver') +
-  ylab('R2')
+out_prop <- out %>% 
+  distinct(id_covar, start_date, .keep_all = TRUE) %>% 
+  group_by(start_date) %>% 
+  mutate(diff_from_best = max(r2) - r2,
+         rank = dense_rank(desc(r2)),
+         r2_none = r2[id_covar=='None'],
+         diff_from_none = r2 - r2_none,
+         rank_AR = dense_rank(desc(diff_from_none)),
+         aic_none = aic[id_covar=='None'],
+         diff_from_none_aic = aic - aic_none,
+         rank_aic = dense_rank(desc(diff_from_none_aic)),
+         significant = p_value < 0.05)
+out_prop$start_date <- as.Date(out_prop$start_date)
+
+p <- ggplot(out_prop, aes(x = (start_date), y = diff_from_none_aic, color = id_covar)) +
+  geom_rect(aes(xmin = min(start_date), xmax = max(start_date), 
+                ymin = -2, ymax = 2), alpha = 0.8, fill = "grey") +
+  geom_hline(aes(yintercept = 0)) +
+  geom_point(size = 2) +
+  facet_wrap(~id_covar, scales = 'free_y') +
+  theme_bw() +
+  ylab(expression(Delta~AIC[c])) +
+  xlab('Window start date') +
+  theme(text=element_text(size=14),
+        axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_color_manual(values = col_pal) 
 p
 
-ggsave('./figures/moving_window/r2_timeseries_1lag.png', p,
-       dpi = 300, units = 'mm', height = 300, width = 600, scale = 0.4)
+ggsave('./figures/resubmission/si_figs/deltaaic_1_lag.png', p,
+       dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.6)
