@@ -188,50 +188,5 @@ p1 <- ggplot(vars_select, aes(x = decade, y = value, fill = variable)) +
   theme_bw() +
   ylab('Correlation Coefficient') 
 p1
-ggsave('./figures/figS3_corr_by_decade.png', p1, dpi = 300, units = 'mm', height = 200, width = 500, scale = 0.4)
+ggsave('./figures/resubmission/si_fig/corr_by_decade.png', p1, dpi = 300, units = 'mm', height = 200, width = 500, scale = 0.4)
 
-################################################################################
-vars_sig <- vars_out %>% 
-  filter(value > 0.3 | value < -0.3) 
-vars_plot <- unique(vars_sig$variable)
-
-df_vars_sig <- df_long %>% 
-  filter(variable %in% vars_plot) 
-  
-df_vars_sig$variable <- factor(df_vars_sig$variable, 
-                               levels = c("DRP_mgm3", "NH4_mgm3", "temp_8",
-                                          "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
-                                          "schmidt_stability"),
-                               labels = c("bottom DRP", "bottom NH4", "bottom water temp",
-                                          "mean air temp", "min windspeed", "monthly water level", 
-                                          "schmidt stability"))
-
-p2 <- ggplot(df_vars_sig, aes(x = as.factor(decade), y = value, fill = as.factor(decade))) +
-  geom_boxplot() +
-  scale_fill_pomological() +
-  facet_wrap(~variable, scales = 'free') +
-  theme_bw() +
-  xlab('Decade') +
-  labs(fill = 'Decade')
-p2
-ggsave('./figures/1991_2021_analysis/selected_vars_decade_boxplots.png', p2, dpi = 300, units = 'mm', 
-       height = 300, width = 500, scale = 0.4)
-
-df_summary <- df_long %>% 
-  select(variable, value, decade) %>% 
-  group_by(variable, decade) %>% 
-  reframe(mean = round(mean(value, na.rm = TRUE), 2), min = min(value, na.rm = TRUE), 
-          max= max(value, na.rm = TRUE), range = min - max, n = n())
-
-# what months were sampled in 90's
-ggplot(df_long, aes(y = month)) +
-  geom_histogram() +
-  facet_wrap(~decade) +
-  theme_bw() 
-
-df_long %>% 
-  filter(variable=='windspeed_min') %>% 
-ggplot(aes(x = month, y = value)) +
-  geom_bar(stat = 'identity') +
-  facet_wrap(~decade) +
-  theme_bw() 
