@@ -1,7 +1,7 @@
 library(tidyverse)
 library(RColorBrewer)
 
-out <- read.csv('./data/model_output.csv')
+out <- read.csv('./data/model_output_moving_window.csv')
 ################################################################################
 # set up labels and levels of factor
 
