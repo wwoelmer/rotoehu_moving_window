@@ -1,0 +1,13 @@
+Variable,Type,Mean,Std.,N,Trend,P value
+TLI,TLI,4.37,0.52,319,-0.072,0.055
+Chl-a,TLI variable,11.60,14.96,319,0.051,0.178
+Secchi,TLI variable,2.93,1.06,319,-0.020,0.601
+Total nitrogen,TLI variable,399.86,186.25,319,-0.182,<0.001
+Total phosphorus,TLI variable,32.65,18.98,319,-0.122,<0.001
+Bottom water DRP,Driver,12.23,19.90,319,-0.157,<0.001
+Bottom water NH4,Driver,46.23,85.28,319,-0.017,0.662
+Bottom water temp,Driver,15.06,3.86,319,0.066,0.078
+Mean air temp,Driver,12.74,3.50,319,0.053,0.157
+Min windpseed,Driver,0.52,0.28,319,-0.044,0.243
+Water level,Driver,294.73,0.61,319,0.431,<0.001
+Alum dosed,Driver,7184.20,12707.19,319,0.453,<0.001
