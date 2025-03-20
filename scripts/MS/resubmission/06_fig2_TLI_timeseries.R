@@ -210,7 +210,7 @@ components <- ggarrange(chl, secchi, tn, tp, labels = 'auto')
 p1 <- ggarrange(components, tli, ncol = 1, labels = 'auto')
 p1
 
-ggsave('./figures/figure2_tli_1990_2021.png', p1, dpi = 300, units = 'mm', 
+ggsave('./figures/resubmission/figure2_tli_1990_2021.png', p1, dpi = 300, units = 'mm', 
        height = 500, width = 350, scale = 0.6)
 
 
