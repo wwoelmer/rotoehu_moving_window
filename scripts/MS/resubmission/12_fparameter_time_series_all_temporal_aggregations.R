@@ -29,39 +29,6 @@ out$id_covar <- factor(out$id_covar,
 
 ################################################################################
 # look at parameter values
-params <- out %>% 
-  filter(covar %in% test_vars) %>% 
-  ggplot(aes(x = as.Date(start_date), y = value, color = id_covar)) +
-  geom_point() +
-  scale_color_manual(values = col_pal) +
-  facet_wrap(~id_covar, scales = 'free_y') +
-  theme_bw() +
-  xlab('Start of Iteration') +
-  ylab('Parameter Value') +
-  labs(color = 'Covariate') +
-  theme(text=element_text(size=15),
-        legend.position = 'none')
-
-params
-
-ggsave('./figures/figure7_parameter_time_series.png', params, dpi = 300, units = 'mm', 
-       height = 400, width = 550, scale = 0.4)
-
-
-
-out %>% 
-  filter(covar %in% test_vars) %>% 
-  ggplot(aes(y = value, fill = id_covar)) +
-  geom_histogram() +
-  geom_hline(yintercept = 0) +
-  scale_fill_manual(values = col_pal) +
-  facet_wrap(~id_covar, scales = 'free_y') +
-  theme_bw() +
-  xlab('Start of Iteration') +
-  ylab('Parameter Value') +
-  labs(color = 'Covariate') +
-  theme(text=element_text(size=15),
-        legend.position = 'none')
 
 out_mw <- out %>% 
   filter(covar %in% test_vars) %>% 
@@ -136,10 +103,6 @@ colnames(param_table_wide) <- c('Variable', 'Window start date',
                                 'Paramater MW', 'Parameter full', 'Parameter DW',
                                 'Std error MW', 'Std error full', 'Std error DW')
 
-ggplot(param_table, aes(x = std_error, fill = timeperiod)) +
-  geom_histogram(position = 'dodge') +
-  facet_wrap(~id_covar, scales = 'free')
-
 a <- ggplot(param_table, aes(x = as.Date(start_date), y = std_error, color = timeperiod)) +
   geom_point() +
   facet_wrap(~id_covar, scales = 'free') +
@@ -157,6 +120,7 @@ b <- ggplot(param_table, aes(x = as.Date(start_date), y = value, color = timeper
   ylab('Parameter value')
 
 p2 <- ggarrange(b, a, common.legend = TRUE)
+p2
 ggsave('./figures/resubmission/si_figs/parameter_values_std_error.png', p2,
        dpi = 300, units = 'mm', height = 300, width = 600, scale = 0.5)
 
