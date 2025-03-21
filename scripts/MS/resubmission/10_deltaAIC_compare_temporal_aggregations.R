@@ -201,18 +201,3 @@ p2
 
 ggsave('./figures/resubmission/movingwindow_delta_aic_significance.png', p2,
        dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.6)
-
-################################################################################
-out_prop %>% 
-  filter(significant=='TRUE') %>% 
-  ggplot(aes(x = as.Date(start_date), y = diff_from_none_aic, color = id_covar)) +
-   geom_point(size = 2) +
-  geom_hline(yintercept = 0) +
-  theme_bw() +
-  ylab(expression(Delta~AIC[c])) +
-  xlab('Start of Iteration') +
-  theme(text=element_text(size=14)) +
-  scale_color_manual(values = col_pal) 
-  
-
-
