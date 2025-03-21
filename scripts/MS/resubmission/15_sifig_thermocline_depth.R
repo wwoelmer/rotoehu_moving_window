@@ -148,18 +148,6 @@ out_prop <- out %>%
          rank_aic = dense_rank(desc(diff_from_none_aic)),
          significant = p_value < 0.05)
 
-ggplot(out_prop, aes(x = as.Date(start_date), y = diff_from_none_aic)) +
-  geom_rect(aes(xmin = min(as.Date(start_date)), xmax = max(as.Date(start_date)), 
-                ymin = -2, ymax = 2), alpha = 0.8, fill = "grey") +
-  geom_hline(aes(yintercept = 0)) +
-  geom_point(aes(color = as.factor(id_covar), shape = significant)) +
-  #facet_wrap(~id_covar) +
-  theme_bw() +
-  ylab(expression(Delta~AIC[c])) +
-  xlab('Start of Iteration') +
-  theme(text=element_text(size=18)) +
-  labs(color = 'Driver')
-
 thermo <- ggplot(out_prop, aes(x = as.Date(start_date), y = diff_from_none_aic)) +
   geom_rect(aes(xmin = min(as.Date(start_date)), xmax = max(as.Date(start_date)), 
                 ymin = -2, ymax = 2), alpha = 0.8, fill = "grey") +
@@ -172,5 +160,7 @@ thermo <- ggplot(out_prop, aes(x = as.Date(start_date), y = diff_from_none_aic))
   theme(text=element_text(size=18)) +
   labs(color = 'Driver')
 
-ggsave('./figures/figureSX_drivers_plus_thermocline_deltaAIC.png', thermo,
+thermo
+
+ggsave('./figures/resubmission/si_figs/drivers_plus_thermocline_deltaAIC.png', thermo,
        dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.6)
