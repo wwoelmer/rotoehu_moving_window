@@ -1,8 +1,0 @@
-"variable","tau","p_value"
-"Bottom DRP (µg/L)",-0.1,0.006
-"Bottom NH4 (µg/L)",-0.003,0.926
-"Bottom Water Temp (°C)",0.064,0.072
-"Mean Air Temp (°C)",0.052,0.151
-"Min Windspeed (m/s)",-0.067,0.066
-"Water Level (m)",0.466,0
-"Alum Dosed (L/day)",0.415,0

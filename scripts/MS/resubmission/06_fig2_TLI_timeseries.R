@@ -2,6 +2,7 @@ library(ggplot2)
 library(readxl)
 library(tidyverse)
 library(ggpubr)
+library(Kendall)
 
 
 ##########################################################################
@@ -280,4 +281,4 @@ trends_df <- lapply(names(trends), function(var){
 
 trends_df
 
-write.csv(trends_df, './figures/trend_output_tli_components.csv', row.names = FALSE)
+write.csv(trends_df, './figures/si_table_trend_output_tli_components.csv', row.names = FALSE)
