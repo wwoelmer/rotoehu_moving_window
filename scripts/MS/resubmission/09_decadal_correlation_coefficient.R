@@ -188,5 +188,5 @@ p1 <- ggplot(vars_select, aes(x = decade, y = value, fill = variable)) +
   theme_bw() +
   ylab('Correlation Coefficient') 
 p1
-ggsave('./figures/resubmission/si_fig/corr_by_decade.png', p1, dpi = 300, units = 'mm', height = 200, width = 500, scale = 0.4)
+ggsave('./figures/resubmission/si_figs/corr_by_decade.png', p1, dpi = 300, units = 'mm', height = 200, width = 500, scale = 0.4)
 
