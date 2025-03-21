@@ -1,4 +1,5 @@
 # run simple AR model for TLI + one covariate from set of potential driver variables
+# across three different temporal aggregations (full window, 3 discrete windows, 8-year moving window)
 
 library(tidyverse)
 library(MuMIn)
@@ -137,7 +138,7 @@ col_pal_all <- colorRampPalette(brewer.pal(9, "Set1"))(col_no_all)
 p1 <- out %>% 
   distinct(id_covar, start_date, .keep_all = TRUE) %>% 
   ggplot(aes(x = as.Date(start_date), y = r2, color = as.factor(id_covar))) +
-  geom_point(size = 4) +
+  geom_point(size = 2) +
   scale_color_manual(values = col_pal_all) +
   #facet_wrap(~id_covar, scales = 'free') +
   theme_bw() +
@@ -147,7 +148,7 @@ p1 <- out %>%
   theme(text=element_text(size=14),
         axis.text.x = element_text(angle = 45, vjust = 0.5)) +
   xlab('Covariate')
-
+p1
 write.csv(out, './data/model_output_moving_window.csv', row.names = FALSE)
 
 ###############################################################################################
@@ -270,7 +271,7 @@ p3 <- out_all_ts %>%
   theme(text=element_text(size=14),
         axis.text.x = element_text(angle = 45, vjust = 0.5)) +
   xlab('Covariate')
-
+p3
 ggarrange(p3, p2, p1, common.legend = TRUE, nrow = 1)
 
 write.csv(out_all_ts, './data/model_output_full.csv', row.names = FALSE)
