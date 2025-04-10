@@ -57,8 +57,8 @@ rank <- ggplot(out_rank, aes(x = reorder(id_covar, sum_r2), y = pct, fill = fct_
   theme_bw() +
   ylab('Percent of time') +
   xlab('Driver') +
-  labs(fill = 'Rank') +
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.55)) 
+  labs(fill = 'Rank')+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.6)) 
 rank
 
 ggsave('./figures/resubmission/pct_rank.png', rank,

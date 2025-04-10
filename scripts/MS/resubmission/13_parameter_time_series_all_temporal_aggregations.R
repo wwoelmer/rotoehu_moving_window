@@ -88,6 +88,7 @@ p1 <- ggplot() +
          shape = guide_legend(title = "Time Period", order = 1),
          fill = guide_legend(title = NULL, order = 2)) +
   theme(text=element_text(size=14),
+        axis.text.x = element_text(size = 10),
         legend.spacing = unit(0, "cm"))
 p1
 ggsave('./figures/resubmission/parameters_across_all_windows.png', p1,
@@ -102,6 +103,10 @@ param_table_wide <- param_table %>%
 colnames(param_table_wide) <- c('Variable', 'Window start date',
                                 'Paramater MW', 'Parameter full', 'Parameter DW',
                                 'Std error MW', 'Std error full', 'Std error DW')
+
+mean_params <- param_table %>% 
+  group_by(id_covar, timeperiod) %>% 
+  summarise(mean_param = mean(value, na.rm = TRUE))
 
 a <- ggplot(param_table, aes(x = as.Date(start_date), y = std_error, color = timeperiod)) +
   geom_point() +

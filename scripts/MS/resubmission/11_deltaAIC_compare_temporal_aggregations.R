@@ -46,7 +46,6 @@ delta_aic <- ggplot(out_prop, aes(x = as.Date(start_date), y = diff_from_none_ai
   scale_color_manual(values = c('#6C5379', '#5FAD56')) 
 delta_aic
 
-
 ################################################################################
 # repeat for three discrete window
 out_three <- read.csv('./data/model_output_three_windows.csv')
@@ -184,11 +183,11 @@ p1
 ggsave('./figures/resubmission/all_windows_delta_aic.png', p1,
        dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.6)
 
-p2 <- ggplot(out_prop_all, aes(x = as.Date(start_date), y = diff_from_none_aic, color = significant)) +
+p2 <- ggplot(out_prop_all, aes(x = as.Date(start_date), y = diff_from_none_aic)) +
   geom_rect(data = out_prop_all[out_prop_all$timeperiod=='Moving window',],
             aes(xmin = min(as.Date(start_date)), xmax = max(as.Date(start_date)), 
                 ymin = -2, ymax = 2), alpha = 0.8, fill = "grey") +
-  geom_point() +
+  geom_point(aes(color = significant)) +
   geom_hline(yintercept = 0) +
   facet_wrap(~id_covar, scales = 'free') +
   theme_bw() +
@@ -197,6 +196,7 @@ p2 <- ggplot(out_prop_all, aes(x = as.Date(start_date), y = diff_from_none_aic, 
   theme(text=element_text(size=14)) +
   #scale_color_manual(values = col_pal) +
   scale_color_manual(values = c('#6C5379', '#5FAD56')) 
+
 p2
 
 ggsave('./figures/resubmission/movingwindow_delta_aic_significance.png', p2,

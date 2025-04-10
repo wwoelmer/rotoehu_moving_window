@@ -3,6 +3,7 @@ library(readxl)
 library(tidyverse)
 library(ggpubr)
 library(Kendall)
+library(plotly)
 
 
 ##########################################################################
@@ -139,6 +140,10 @@ getDecade <- function(year) {
 }
 
 dat_all$decade <- getDecade(year(dat_all$date))
+
+# make it 1990 instead of 90
+dat_all <- dat_all %>% 
+  mutate(decade = ifelse(decade==90, 1990, decade))
 
 tli <- ggplot(dat_all, aes(x = as.Date(date), y = tli_annual)) +
   geom_point(aes(x = as.Date(date), y = tli_monthly, color = as.factor(decade)), size = 2) +
