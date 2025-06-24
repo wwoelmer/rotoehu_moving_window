@@ -214,7 +214,7 @@ ggplotly(secchi)
 
 components <- ggarrange(chl, secchi, tn, tp, labels = 'auto')
 
-ggsave('./figures/resubmission/si_figs/tli_components_1990_2021.png', components, dpi = 300, units = 'mm', 
+ggsave('./figures/MS/si_figs/tli_components_1990_2021.png', components, dpi = 300, units = 'mm', 
        height = 500, width = 350, scale = 0.6)
 
 
@@ -258,9 +258,6 @@ tli_parts_1facet <- ggplot(dat_long, aes(x = as.Date(date), y = value, color = T
 
 tli_parts
 
-ggsave('./figures/resubmission/si_figs/tli_components_1990_2022.png', tli_parts_1facet, 
-       dpi = 300, units = 'mm', 
-       height = 200, width = 300, scale = 0.8)
 
 ##### calculate trends
 data_split <- split(dat_long, dat_long$TLI_var)
