@@ -14,7 +14,7 @@ wq$site <- as.character(wq$site)
 wq <- wq %>% 
   mutate(year = year(date),
          month = month(date)) %>% 
-  select(-X, -top_turbidity_NTU, -bottom_turbidity_NTU,
+  select(-top_turbidity_NTU, -bottom_turbidity_NTU,
          -(TN_TP:DP_TP)) ## use turbidity data from the CTD instead
 
 
