@@ -87,7 +87,7 @@ p1 <- ggplot(lc_fill, aes(x = year, y = area_pct, fill = lc_category)) +
   ylab('Percent of Catchment') +
   theme_bw()
 
-ggsave('./figures/figureS1_landcover_pct.png', p1,
+ggsave('./figures/MS/si_figs/landcover_pct.png', p1,
        dpi = 300, units = 'mm', height = 300, width = 450, scale = 0.5)
 
 lc_fill$lake <- 'Rotoehu'
