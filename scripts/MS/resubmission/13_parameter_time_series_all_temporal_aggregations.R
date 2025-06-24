@@ -110,7 +110,7 @@ mean_params <- param_table %>%
 
 a <- ggplot(param_table, aes(x = as.Date(start_date), y = std_error, color = timeperiod)) +
   geom_point() +
-  facet_wrap(~id_covar, scales = 'free') +
+  facet_wrap(~id_covar, scales = 'free', ncol = 1) +
   scale_color_manual(values = c('#d73027', '#fdae61', '#4575b4')) +
   theme_bw() +
   xlab('Window start date') +
@@ -118,14 +118,12 @@ a <- ggplot(param_table, aes(x = as.Date(start_date), y = std_error, color = tim
 
 b <- ggplot(param_table, aes(x = as.Date(start_date), y = value, color = timeperiod)) +
   geom_point() +
-  facet_wrap(~id_covar, scales = 'free') +
+  facet_wrap(~id_covar, scales = 'free', ncol = 1) +
   scale_color_manual(values = c('#d73027', '#fdae61', '#4575b4')) +
   theme_bw() +
   xlab('Window start date') +
   ylab('Parameter value')
 
-p2 <- ggarrange(b, a, common.legend = TRUE)
-p2
-ggsave('./figures/resubmission/si_figs/parameter_values_std_error.png', p2,
-       dpi = 300, units = 'mm', height = 300, width = 600, scale = 0.5)
+ggsave('./figures/resubmission/si_figs/parameter_std_error.png', a,
+       dpi = 300, units = 'mm', height = 500, width = 350, scale = 0.5)
 
