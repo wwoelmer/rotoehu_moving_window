@@ -52,6 +52,7 @@ out_dw <- read.csv('./data/model_output_three_windows.csv')
 out_dw <- out_dw %>% 
   filter(covar %in% test_vars) %>% 
   mutate(timeperiod = 'Discrete window')
+
 out_dw$id_covar <- factor(out_dw$id_covar, 
                            levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
                                       "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
@@ -63,36 +64,47 @@ out_dw$id_covar <- factor(out_dw$id_covar,
 out_all <- full_join(out_mw, outfull)
 out_all <- full_join(out_all, out_dw)
 
-out_all$timeperiod <- factor(out_all$timeperiod, levels = c('Full period',
-                                                            'Discrete window',
-                                                            'Moving window'))
+out_all$timeperiod <- factor(out_all$timeperiod, 
+                             levels = c("Full period", "Discrete window", "Moving window"), 
+                             labels = c("Full", "Discrete", "Moving"))
 
-p1 <- ggplot() +
-  geom_histogram(data = out_all[out_all$timeperiod=='Moving window',],
-                 aes(x = value, fill = timeperiod)) +
-  facet_wrap(~id_covar, scales = 'free_x') +
-  geom_point(data = out_all[out_all$timeperiod!='Moving window',],
-             aes(y = 0, x = value, shape = timeperiod, color = timeperiod),
-             size = 3) +
-  #geom_errorbar(data = out_all[out_all$timeperiod!='Moving window',],
-  #              aes(xmin = value - std_error, xmax = value + std_error, 
-  #                  y = 0, color = timeperiod),
-  #              linewidth = 1.2) +  # Error bars
-  geom_vline(xintercept = 0) +
-  scale_fill_manual(values = '#4575b4') +
-  scale_color_manual(values = c('#d73027', '#fdae61')) +
-  theme_bw() +
-  xlab('Parameter Value') +
-  ylab('Frequency') +
-  guides(color = guide_legend(title = "Time Period", order = 1),  # Combine legends
-         shape = guide_legend(title = "Time Period", order = 1),
-         fill = guide_legend(title = NULL, order = 2)) +
-  theme(text=element_text(size=14),
-        axis.text.x = element_text(size = 10),
-        legend.spacing = unit(0, "cm"))
-p1
-ggsave('./figures/resubmission/parameters_across_all_windows.png', p1,
-       dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.6)
+# make dataframe of direction labels:
+hyp_dir_labels <- data.frame(id_covar = factor(c("Bottom DRP", "Bottom NH4", "Bottom Water Temp",
+                                                 "Mean Air Temp", "Min Windspeed", "Water Level", 
+                                                 "Alum Dosed")) , 
+                             direction = c(" +", " +", "+/-", " +", "+/-", " -", " -"))
+
+
+(p1 <-  ggplot() +
+    geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.5, colour = "grey20")+
+    geom_point(data = out_all,
+               aes(y = value, x = as.Date(start_date), fill = timeperiod, colour = timeperiod, size = timeperiod, alpha = timeperiod)) +
+    facet_wrap(~id_covar, scales = 'free_y', ncol = 1) +
+    scale_fill_manual(values = c('#d73027', '#fdae61', '#4575b4'), guide = 'none')+
+    scale_colour_manual(values = c('#d73027', '#fdae61', '#4575b4'))+
+    scale_size_manual (values = c(3,3,2),  guide = 'none')+
+    scale_alpha_manual(values = c(1, 1, 0.7), guide = 'none')+
+    labs(x = "\nWindow start date", y = "Parameter value") +
+     geom_text(
+      data    = hyp_dir_labels,
+      mapping = aes(x = as.Date("2015-04-01"), y = Inf, label = direction), 
+      hjust = 0.1, vjust = 1.5)+
+    coord_cartesian(xlim = c(as.Date("2000-07-11"),as.Date("2014-06-01")), clip = "off")+
+    theme_bw() +
+    theme(panel.grid = element_blank(), 
+          strip.background = element_blank(), 
+          strip.text = element_text(size = 12, colour = "black", hjust = 0),
+          axis.title = element_text(size = 12, colour = "black"),
+          axis.text = element_text(size = 9), 
+          legend.justification = "bottom", 
+          panel.spacing = unit(0,'lines'), 
+          legend.box.margin = margin(t = 0, r = 0, b = 0, l = 10))+  
+    guides(color = guide_legend(title = "Window type", order = 1, hjust = 0.5)
+    ))
+
+ggsave('./figures/MS/Parameter coefficient timeseries.png', p1,
+       dpi = 300, units = 'mm', height = 500, width = 350, scale = 0.5)
+
 
 
 param_table <- out_all %>% 
@@ -110,20 +122,27 @@ mean_params <- param_table %>%
 
 a <- ggplot(param_table, aes(x = as.Date(start_date), y = std_error, color = timeperiod)) +
   geom_point() +
-  facet_wrap(~id_covar, scales = 'free', ncol = 1) +
+  facet_wrap(~id_covar, scales = 'free') +
   scale_color_manual(values = c('#d73027', '#fdae61', '#4575b4')) +
   theme_bw() +
   xlab('Window start date') +
   ylab('Parameter standard error')
 
-b <- ggplot(param_table, aes(x = as.Date(start_date), y = value, color = timeperiod)) +
-  geom_point() +
-  facet_wrap(~id_covar, scales = 'free', ncol = 1) +
-  scale_color_manual(values = c('#d73027', '#fdae61', '#4575b4')) +
-  theme_bw() +
-  xlab('Window start date') +
-  ylab('Parameter value')
 
-ggsave('./figures/resubmission/si_figs/parameter_std_error.png', a,
+ggsave('./figures/MS/si_figs/parameter_std_error.png', a,
        dpi = 300, units = 'mm', height = 500, width = 350, scale = 0.5)
+
+
+# New plot format - RGG ----
+
+
+
+out_all_rgg <- out_all %>%
+   mutate(direction = if_else(value >=0, "Positive", "Negative"))%>%
+  filter(!is.na(direction))%>%
+  mutate(timeperiod2 = factor(timeperiod, levels = c("Discrete window", "Full period", "Moving window"), 
+                              labels = c("Discrete", "Full", "Moving")))
+
+
+
 
