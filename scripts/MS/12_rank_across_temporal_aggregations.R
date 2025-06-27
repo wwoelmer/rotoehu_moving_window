@@ -1,8 +1,8 @@
 # calculate model rank
 library(tidyverse)
 library(RColorBrewer)
-library(ggridges)
 
+# Moving windows ----
 out <- read.csv('./data/model_output_moving_window.csv')
 # set up labels and levels of factor
 out$id_covar <- factor(out$id_covar, 
@@ -35,7 +35,7 @@ out_prop_AR <- out_prop %>%
 
 out_rank <- plyr::ddply(out_prop_AR, c("id_covar", "rank_AR"), \(x) {
   n <- nrow(x)
-  pct <- round(n/length(unique(out_prop$iter_start))*100)
+  pct <- (n/length(unique(out_prop$iter_start))*100)
   return(data.frame(pct = pct))
 })
 
@@ -51,21 +51,9 @@ out_rank <- out_rank %>%
   group_by(id_covar) %>% 
   mutate(sum_r2 = sum(pct*rank_AR))
 
-rank <- ggplot(out_rank, aes(x = reorder(id_covar, sum_r2), y = pct, fill = fct_rev(as.factor(rank_AR)))) +
-  geom_bar(stat = 'identity') +
-  scale_fill_manual(values = rank_pal) +
-  theme_bw() +
-  ylab('Percent of time') +
-  xlab('Driver') +
-  labs(fill = 'Rank')+
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.6)) 
-rank
 
-ggsave('./figures/resubmission/pct_rank.png', rank,
-       dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.4)
 
-################################################################################
-## repeat for full time period
+## repeat for full time period ----
 
 outfull <- read.csv('./data/model_output_full.csv')
 # set up labels and levels of factor
@@ -77,8 +65,6 @@ outfull$id_covar <- factor(outfull$id_covar,
                            labels = c("Bottom DRP", "Bottom NH4", "Bottom Water Temp",
                                       "Mean Air Temp", "Min Windspeed", "Water Level", 
                                       "Alum Dosed", "None"))
-
-col_pal <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#F781BF", "#999999")
 
 # calculate the difference across variables
 out_prop_full <- outfull %>% 
@@ -93,35 +79,22 @@ out_prop_full <- outfull %>%
          diff_from_none_aic = aic - aic_none,
          rank_aic = dense_rank(desc(diff_from_none_aic*-1))) #multiply by -1 to change the sign so positive is good for ranking purposes
 
-bfull <- ggplot(out_prop_full, aes(x = rank_AR, y = reorder(id_covar, rank), color = id_covar)) +
-  geom_point(size = 4) +
-  scale_color_manual(values = col_pal) +
-  theme_bw() +
-  scale_x_continuous(breaks = (1:9),  # Specify breaks for y-axis
-                     labels = (1:9)) +
-  labs(fill = 'Driver') +
-  xlab('Rank') +
-  ylab("") +
-  theme(legend.position = 'none') +
-  ggtitle('Full time series')
-bfull
 
 order_full <- c('Bottom DRP', 'Mean Air Temp', 'Bottom Water Temp', 'Bottom NH4',
                 'Min Windspeed', 'None', 'Water Level', 'Alum Dosed')
 
-################################################################################
-## repeat for 3 windows
+## Discrete windows ----
 
 out3 <- read.csv('./data/model_output_three_windows.csv')
 
 # set up labels and levels of factor
 out3$id_covar <- factor(out3$id_covar, 
-                       levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
-                                  "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
-                                  "sum_alum", "none"),
-                       labels = c("Bottom DRP", "Bottom NH4", "Bottom Water Temp",
-                                  "Mean Air Temp", "Min Windspeed", "Water Level", 
-                                  "Alum Dosed", "None"))
+                        levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
+                                   "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
+                                   "sum_alum", "none"),
+                        labels = c("Bottom DRP", "Bottom NH4", "Bottom Water Temp",
+                                   "Mean Air Temp", "Min Windspeed", "Water Level", 
+                                   "Alum Dosed", "None"))
 
 # remove alum dosing results from first window which had no alum application
 out3 <- out3 %>% 
@@ -142,66 +115,73 @@ out_prop3 <- out3 %>%
          rank_aic = dense_rank(desc(diff_from_none_aic*-1))) #multiply by -1 to change the sign so positive is good for ranking purposes
 
 
-b3 <- ggplot(out_prop3, aes(x = rank_AR, y = id_covar, color = id_covar)) +
-  #geom_point(data = out_prop, aes(x = rank_AR, y = id_covar), alpha = 0.1) +
-  geom_point(size = 4) +
-  scale_color_manual(values = col_pal) +
-  theme_bw() +
-  facet_wrap(~start_date, ncol = 1) +
-  scale_x_continuous(breaks = (1:9),  # Specify breaks for y-axis
-                     labels = (1:9)) +
-  labs(fill = 'Driver') +
-  xlab('Rank') +
-  ylab("") +
-  theme(legend.position = 'none') +
-  ggtitle('Three windows')
-b3
 
 
-###############################################################################
-## combine discrete windows and full window
-out_prop3$timeperiod <- out_prop3$start_date
-out_prop_full$timeperiod <- 'Full window'
-out_prop_3_full <- full_join(out_prop3, out_prop_full)
-out_prop_3_full$timeperiod <- factor(out_prop_3_full$timeperiod, levels = c('Full window',
-                                                                 '2000-07-11',
-                                                                 '2007-07-24',
-                                                                 '2014-07-22'))
+## Plotting ----
 
-bfull_3 <- ggplot(out_prop_3_full, aes(x = rank_AR, factor(id_covar, levels = order_full), color = id_covar)) +
-  #geom_point(data = out_prop, aes(x = rank_AR, y = id_covar), alpha = 0.1) +
-  geom_point(size = 4) +
-  scale_color_manual(values = col_pal) +
-  theme_bw() +
-  facet_wrap(~timeperiod, ncol = 1) +
-  scale_x_continuous(breaks = (1:9),  # Specify breaks for y-axis
-                     labels = (1:9)) +
-  labs(fill = 'Driver') +
-  xlab('Rank') +
-  ylab("") +
-  theme(legend.position = 'none') 
-bfull_3
 
-b <- ggplot(out_prop, aes(x = rank_AR, factor(id_covar, levels = order_full), fill = id_covar)) +
-  geom_boxplot( 
-    size = 1) +
-  geom_jitter(data = out_prop, aes(x = rank_AR, y = id_covar), alpha = 0.1) +
-  scale_fill_manual(values = col_pal) +
-  theme_bw() +
-  scale_x_continuous(breaks = (1:9),  # Specify breaks for y-axis
-                     labels = (1:9)) +
-  labs(fill = 'Driver') +
-  xlab('Rank') +
-  ylab("") +
-  #ggtitle('Moving windows') +
-  theme(legend.position = 'none')
-b
+(discrete_rank <- ggplot(out_prop3,
+                         aes(x = timeperiod, y = fct_rev(factor(id_covar, levels = order_full)), fill = rank)) +
+    geom_tile(colour = "black") +
+    scale_fill_distiller(palette ="YlGnBu" )+
+    scale_x_discrete( expand = c(0,0))+
+    scale_y_discrete(expand = c(0,0))+
+    theme_bw() +
+    labs(x = "\nWindow start date", y = NULL, title = "B. Discrete")+
+    geom_text(aes(label = rank))+
+    theme(legend.position = "none", panel.grid = element_blank() , 
+          axis.text.y = element_blank(), axis.ticks.y =  element_blank(),
+          axis.text.x = element_text(colour = "black")
+    ) )
 
-p1 <- ggarrange(b, bfull_3,
-         # widths = c(1.5, 2),
-          labels = 'auto')
-p1
+(full_rank <- ggplot(out_prop_full,
+                     aes(x = timeperiod, y = fct_rev(factor(id_covar, levels = order_full)), fill = rank)) +
+    geom_tile(colour = "black") +
+    scale_fill_distiller(palette ="YlGnBu" )+
+    
+    scale_x_discrete( expand = c(0,0))+
+    scale_y_discrete(expand = c(0,0))+
+    theme_bw() +
+    labs(x = NULL, y = NULL, title = "A. Full")+
+    geom_text(aes(label = rank))+
+    theme(legend.position = "none", panel.grid = element_blank() , 
+          axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+          axis.text.y = element_text(colour = "black", size = 12)
+    ) )
 
-ggsave('./figures/resubmission/rank_across_all_windows.png', p1,
-       dpi = 300, units = 'mm', height = 300, width = 350, scale = 0.6)
+num_ranks <- length(unique(out_rank$rank_AR))
+rank_pal <- colorRampPalette(brewer.pal(8, "YlGnBu"))(num_ranks)
+
+(moving_window_rank <- out_prop%>%
+    mutate(start_date = as.Date(start_date), end_date = as.Date(end_date))%>%
+    group_by(id_covar)%>%
+    arrange(start_date)%>%
+    mutate(moving_end_date = lead(start_date))%>%
+    mutate(moving_end_date = if_else(is.na(moving_end_date), as.Date("2013-04-19"), moving_end_date))%>%
+    ggplot()+
+    geom_rect(aes(xmin = start_date, xmax = moving_end_date, ymin = 0, ymax = 1, fill = fct_rev(as.factor(rank_AR))))+
+    scale_fill_manual(values = rank_pal,  guide = guide_legend(reverse = TRUE))+
+    scale_x_date(expand = c(0,0))+
+    scale_y_discrete(expand = c(0,0))+
+    facet_wrap(~factor(id_covar, levels = c("Bottom DRP", "Mean Air Temp", "Bottom Water Temp", "Bottom NH4",          
+                                            "Min Windspeed" , "None",  "Water Level", "Alum Dosed" )), ncol = 1)+
+    theme_bw() +
+    labs(x = "\nWindow start date", y = NULL, title = "C. Moving", fill = "Rank")+
+    theme(legend.justification = "bottom",
+          panel.grid = element_blank() , 
+          axis.text.y = element_blank(), 
+          axis.ticks.y =  element_blank(), 
+          axis.text.x = element_text(colour = "black"),
+          strip.text = element_blank(), 
+          panel.spacing.y = unit(0, "lines"), 
+          panel.border = element_rect(linewidth = 0.3) , 
+          legend.key = element_rect(color = "black", fill = NA, linewidth = 0.2) 
+    ))
+
+
+
+(rank_all_figure <- full_rank + discrete_rank + moving_window_rank+ plot_layout(ncol = 3, widths = c(1, 3, 6)))
+
+ggsave('./figures/resubmission/rank_all_windows.png', rank_all_figure,
+       dpi = 300, units = 'mm', height = 280, width = 500, scale = 0.6)
 
