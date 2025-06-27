@@ -4,6 +4,7 @@ library(tidyverse)
 library(ggpubr)
 library(Kendall)
 library(plotly)
+library(patchwork)
 
 
 ##########################################################################
@@ -105,6 +106,7 @@ dat_90s <- full_join(dat_wide, dat2)
 ###################################################################################################
 # combine with data from 2001 onward
 dat_00s <- read.csv('./data/master_rotoehu.csv')
+#dat_00s <- read.csv('./data/raw_data/rotoehu_waterquality_2000_2021.csv')
 dat_00s$date <- as.POSIXct(dat_00s$date)
 dat_00s <- dat_00s %>% 
   rename(chl_mgm3 = chla_ugL_INT,
@@ -145,17 +147,23 @@ dat_all$decade <- getDecade(year(dat_all$date))
 dat_all <- dat_all %>% 
   mutate(decade = ifelse(decade==90, 1990, decade))
 
+
+dat_all <- read.csv('./data/processed_data/rotoehu_tli_1990_2021.csv')
+
+
+
+
 tli <- ggplot(dat_all, aes(x = as.Date(date), y = tli_annual)) +
   geom_point(aes(x = as.Date(date), y = tli_monthly, color = as.factor(decade)), size = 2) +
   geom_line(aes(x = as.Date(date), y = tli_monthly, color = as.factor(decade))) +
-  geom_line(size = 1.5) +
+  geom_line(size = 1) +
   theme_bw() +
-  scale_color_manual(values = c('#B40F20', '#90A959',  '#E49436', 'goldenrod')) +
+  scale_color_manual(values = c('#D55E00', '#009E73',  '#E69F00', '#0072B2')) +
   xlab('Date') +
   ylab('Trophic Level Index') +
   labs(color = 'Decade',
        linetype = '') +
-  theme(text = element_text(size = 14)) #+
+  theme(text = element_text(size = 12)) #+
   #geom_hline(aes(yintercept = mean(tli_annual), linetype = 'Mean'))
 tli
 
@@ -165,39 +173,46 @@ chl <- ggplot(dat_all, aes(x = as.Date(date), y = chl_mgm3, color = as.factor(de
   geom_point(size = 2) +
   geom_line() +
   theme_bw() +
+  #scale_x_date(expand = c(0,0))+
   xlab('Date') +
   ylab('Chlorophyll-a (ug/L)') +
-  scale_color_manual(values = c('#B40F20', '#90A959',  '#E49436', 'goldenrod')) +
-  labs(color = 'Year',
-       linetype = '') +
+  scale_color_manual(values = c('#D55E00', '#009E73',  '#E69F00', '#0072B2')) +
   theme(text = element_text(size = 12),
-        legend.position = 'none')
-ggplotly(chl)
+        legend.position = 'none', 
+        axis.text.x = element_blank(), 
+        axis.title.x = element_blank())
+
 tn <- ggplot(dat_all, aes(x = as.Date(date), y = TN_mgm3, color = as.factor(decade))) +
   geom_point(size = 2) +
   geom_line() +
   theme_bw() +
-  scale_color_manual(values = c('#B40F20', '#90A959',  '#E49436', 'goldenrod')) +
+  scale_color_manual(values = c('#D55E00', '#009E73',  '#E69F00', '#0072B2')) +
+  #scale_x_date(expand = c(0,0))+
   xlab('Date') +
   ylab('Total Nitrogen (ug/L)') +
   labs(color = 'Year',
        linetype = '') +
   theme(text = element_text(size = 12),
-        legend.position = 'none')
-ggplotly(tn)
+        legend.position = 'none', 
+        axis.text.x = element_blank(), 
+        axis.title.x = element_blank())
+tn
 
 tp <- ggplot(dat_all, aes(x = as.Date(date), y = TP_mgm3, color = as.factor(decade))) +
   geom_point(size = 2) +
   geom_line() +
   theme_bw() +
-  scale_color_manual(values = c('#B40F20', '#90A959',  '#E49436', 'goldenrod')) +
+  scale_color_manual(values = c('#D55E00', '#009E73',  '#E69F00', '#0072B2')) +
+  #scale_x_date(expand = c(0,0))+
   xlab('Date') +
   ylab('Total Phosphorus (ug/L)') +
   labs(color = 'Year',
        linetype = '') +
   theme(text = element_text(size = 12),
-        legend.position = 'none')
-ggplotly(tp)
+        legend.position = 'none', 
+        axis.text.x = element_blank(), 
+        axis.title.x = element_blank())
+tp
 
 secchi <- ggplot(dat_all, aes(x = as.Date(date), y = secchi_m, color = as.factor(decade))) +
   geom_point(size = 2) +
@@ -205,16 +220,27 @@ secchi <- ggplot(dat_all, aes(x = as.Date(date), y = secchi_m, color = as.factor
   theme_bw() +
   xlab('Date') +
   ylab('Secchi Depth (m)') +
-  scale_color_manual(values = c('#B40F20', '#90A959',  '#E49436', 'goldenrod')) +
+  scale_color_manual(values = c('#D55E00', '#009E73',  '#E69F00', '#0072B2')) +
+  #scale_x_date(expand = c(0,0))+
   labs(color = 'Year',
        linetype = '') +
   theme(text = element_text(size = 12),
-        legend.position = 'none')
-ggplotly(secchi)
+        legend.position = 'none', 
+        axis.text.x = element_blank(), 
+        axis.title.x = element_blank())
 
-components <- ggarrange(chl, secchi, tn, tp, labels = 'auto')
+secchi
 
-ggsave('./figures/MS/si_figs/tli_components_1990_2021.png', components, dpi = 300, units = 'mm', 
+#components <- ggarrange(chl, secchi, tn, tp, labels = 'auto')
+#p1 <- ggarrange(components, tli, ncol = 1, labels = 'auto')
+#p1
+
+library(patchwork)
+(components <- chl +secchi+ tn+tp+tli +plot_layout(ncol = 1)+plot_annotation(tag_levels = 'A',tag_suffix = '.') & 
+    theme(plot.tag = element_text(face = "bold")))
+
+
+ggsave('./figures/resubmission/si_figs/Trophic level variables and TLI.png', components, dpi = 300, units = 'mm', 
        height = 500, width = 350, scale = 0.6)
 
 
@@ -258,6 +284,9 @@ tli_parts_1facet <- ggplot(dat_long, aes(x = as.Date(date), y = value, color = T
 
 tli_parts
 
+#ggsave('./figures/resubmission/si_figs/tli_components_1990_2022.png', tli_parts_1facet, 
+      # dpi = 300, units = 'mm', 
+      # height = 200, width = 300, scale = 0.8)
 
 ##### calculate trends
 data_split <- split(dat_long, dat_long$TLI_var)
