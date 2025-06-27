@@ -139,7 +139,7 @@ p <- ggplot(out_prop, aes(x = (start_date), y = diff_from_none_aic, color = id_c
                 ymin = -2, ymax = 2), alpha = 0.8, fill = "grey") +
   geom_hline(aes(yintercept = 0)) +
   geom_point(size = 2) +
-  facet_wrap(~id_covar, scales = 'free_y') +
+  facet_wrap(~id_covar, scales = 'free_y', ncol = 1) +
   theme_bw() +
   ylab(expression(Delta~AIC[c])) +
   xlab('Window start date') +
@@ -148,5 +148,5 @@ p <- ggplot(out_prop, aes(x = (start_date), y = diff_from_none_aic, color = id_c
   scale_color_manual(values = col_pal) 
 p
 
-ggsave('./figures/resubmission/si_figs/deltaaic_1_lag.png', p,
-       dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.6)
+ggsave('./figures/MS/si_figs/deltaaic_1_lag.png', p,
+       dpi = 300, units = 'mm',  height = 500, width = 350, scale = 0.6)
