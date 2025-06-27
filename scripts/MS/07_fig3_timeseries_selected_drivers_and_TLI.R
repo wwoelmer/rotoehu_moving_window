@@ -36,9 +36,9 @@ driver_long$variable <- factor(driver_long$variable,
                                           "sum_alum"),
                                labels = c("Bottom DRP \n(µg/L)", 
                                           "Bottom NH4 \n(µg/L)",
-                                          "Bottom Water \nTemp (°C)",
-                                          "Mean Air \nTemp (°C)", "Min Windspeed \n(m/s)", "Water Level (m)", 
-                                          "Alum Dosed \n(L/day)"))
+                                          "Bottom water \ntemp (°C)",
+                                          "Mean air \ntemp (°C)", "Min windspeed \n(m/s)", "Water level (m)", 
+                                          "Alum dosed \n(L/day)"))
 
 driver_long$decade <- factor(driver_long$decade, levels = c("1990", "2000", "2010", "2020"))
 
@@ -82,50 +82,50 @@ alum_theme <- theme(axis.title = element_text(size = 12, colour = "black"),
     labs(color = 'Decade', y = "Bottom NH4 \n(µg/L)", x = NULL) +
     driver_theme)
 
-(water_temp <- ggplot(driver_long%>%filter(variable ==  "Bottom Water \nTemp (°C)",,), aes(x = date, y = value, color = as.factor(decade))) +
+(water_temp <- ggplot(driver_long%>%filter(variable ==  "Bottom water \ntemp (°C)",,), aes(x = date, y = value, color = as.factor(decade))) +
     geom_point(size = 1.5) +
     geom_line(size = 0.4, alpha = 0.4) +
     scale_color_manual(values = c('#D55E00', '#009E73',  '#E69F00', '#0072B2')) +
     scale_x_date(limits = c(as.Date("1990-07-25"),as.Date("2021-06-14")))+
     theme_bw() +
-    labs(color = 'Decade', y =  "Bottom Water \nTemp (°C)", x = NULL) +
+    labs(color = 'Decade', y =  "Bottom water \ntemp (°C)", x = NULL) +
     driver_theme)
 
-(air_temp <- ggplot(driver_long%>%filter(variable ==  "Mean Air \nTemp (°C)",), aes(x = date, y = value, color = as.factor(decade))) +
+(air_temp <- ggplot(driver_long%>%filter(variable ==  "Mean air \ntemp (°C)",), aes(x = date, y = value, color = as.factor(decade))) +
     geom_point(size = 1.5) +
     geom_line(size = 0.4, alpha = 0.4) +
     scale_color_manual(values = c('#D55E00', '#009E73',  '#E69F00', '#0072B2')) +
     scale_x_date(limits = c(as.Date("1990-07-25"),as.Date("2021-06-14")))+
     theme_bw() +
-    labs(color = 'Decade', y =  "Mean Air \nTemp (°C)", x = NULL) +
+    labs(color = 'Decade', y =  "Mean air \ntemp (°C)", x = NULL) +
     driver_theme)
 
-(wind <- ggplot(driver_long%>%filter(variable ==  "Min Windspeed \n(m/s)"), aes(x = date, y = value, color = as.factor(decade))) +
+(wind <- ggplot(driver_long%>%filter(variable ==  "Min windspeed \n(m/s)"), aes(x = date, y = value, color = as.factor(decade))) +
     geom_point(size = 1.5) +
     geom_line(size = 0.4, alpha = 0.4) +
     scale_color_manual(values = c('#D55E00', '#009E73',  '#E69F00', '#0072B2')) +
     scale_x_date(limits = c(as.Date("1990-07-25"),as.Date("2021-06-14")))+
     theme_bw() +
-    labs(color = 'Decade', y =  "Min Windspeed \n(m/s)", x = NULL) +
+    labs(color = 'Decade', y =  "Min windspeed \n(m/s)", x = NULL) +
     driver_theme)
 
-(water_level <- ggplot(driver_long%>%filter(variable ==  "Water Level (m)"), aes(x = date, y = value, color = as.factor(decade))) +
+(water_level <- ggplot(driver_long%>%filter(variable ==  "Water level (m)"), aes(x = date, y = value, color = as.factor(decade))) +
     geom_point(size = 1.5) +
     geom_line(size = 0.4, alpha = 0.4) +
     scale_color_manual(values = c('#D55E00', '#009E73',  '#E69F00', '#0072B2')) +
     scale_x_date(limits = c(as.Date("1990-07-25"),as.Date("2021-06-14")))+
     theme_bw() +
-    labs(color = 'Decade', y =  "Water \nLevel (m)", x = NULL) +
+    labs(color = 'Decade', y =  "Water \nlevel (m)", x = NULL) +
     driver_theme)
 
 
-(alum <- ggplot(driver_long%>%filter(variable ==  "Alum Dosed \n(L/day)"), aes(x = date, y = value, color = as.factor(decade))) +
+(alum <- ggplot(driver_long%>%filter(variable ==  "Alum dosed \n(L/day)"), aes(x = date, y = value, color = as.factor(decade))) +
     geom_point(size = 1.5) +
     geom_line(size = 0.4, alpha = 0.4) +
     scale_color_manual(values = c( '#E69F00', '#0072B2')) +
     scale_x_date(limits = c(as.Date("1990-07-25"),as.Date("2021-06-14")))+
     theme_bw() +
-    labs(color = 'Decade', y =  "Alum Dosed \n(L/day)", x = "\nDate") +
+    labs(color = 'Decade', y =  "Alum dosed \n(L/day)", x = "\nDate") +
     theme(legend.position = "none", 
           plot.margin = margin(0, 0, 1, 0, "points"))+
     alum_theme)
