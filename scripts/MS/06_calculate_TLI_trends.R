@@ -240,7 +240,7 @@ library(patchwork)
     theme(plot.tag = element_text(face = "bold")))
 
 
-ggsave('./figures/resubmission/si_figs/Trophic level variables and TLI.png', components, dpi = 300, units = 'mm', 
+ggsave('./figures/MS/si_figs/Trophic level variables and TLI.png', components, dpi = 300, units = 'mm', 
        height = 500, width = 350, scale = 0.6)
 
 
