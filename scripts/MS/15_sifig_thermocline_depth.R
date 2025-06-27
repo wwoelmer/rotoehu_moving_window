@@ -153,7 +153,7 @@ thermo <- ggplot(out_prop, aes(x = as.Date(start_date), y = diff_from_none_aic))
                 ymin = -2, ymax = 2), alpha = 0.8, fill = "grey") +
   geom_hline(aes(yintercept = 0)) +
   geom_point(aes(color = as.factor(id_covar), shape = significant)) +
-  facet_wrap(~id_covar) +
+  facet_wrap(~id_covar, ncol = 1, scales = 'free') +
   theme_bw() +
   ylab(expression(Delta~AIC[c])) +
   xlab('Start of Iteration') +
@@ -162,5 +162,5 @@ thermo <- ggplot(out_prop, aes(x = as.Date(start_date), y = diff_from_none_aic))
 
 thermo
 
-ggsave('./figures/resubmission/si_figs/drivers_plus_thermocline_deltaAIC.png', thermo,
-       dpi = 300, units = 'mm', height = 300, width = 400, scale = 0.6)
+ggsave('./figures/MS/si_figs/drivers_plus_thermocline_deltaAIC.png', thermo,
+       dpi = 300, units = 'mm',  height = 500, width = 350, scale = 0.6)
