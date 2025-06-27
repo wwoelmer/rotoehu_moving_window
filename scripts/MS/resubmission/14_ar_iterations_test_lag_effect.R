@@ -48,6 +48,16 @@ dat <- dat %>%
   group_by(year, lake, site) %>%
   mutate(tli_annual = tli_fx(chl = chla_ugL_INT, TN = top_TN_ugL, TP = top_TP_ugL, secchi = secchi_m))
 
+ggplot(dat, aes(x = as.Date(date), y = tli_monthly, color = as.factor(year))) +
+  geom_point()
+
+summ_tli <- dat %>% 
+  group_by(year) %>% 
+  summarise(min = min(tli_monthly),
+            max = max(tli_monthly)) %>% 
+  mutate(diff = round(max - min, 1))
+summ_tli
+
 #######################################################
 # run the ar model simulation
 source('./scripts/functions/run_ar.R')
