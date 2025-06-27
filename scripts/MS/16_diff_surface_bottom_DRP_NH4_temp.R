@@ -30,6 +30,6 @@ mean_diff <- data %>%
 mean_diff  
 
 
-ggsave('./figures/resubmission/si_figs/diff_surface_bottom_nutrients.png', diff_nutrients,
+ggsave('./figures/MS/si_figs/diff_surface_bottom_nutrients.png', diff_nutrients,
        dpi = 300, units = 'mm', height = 300, width = 600, scale = 0.3)
 
