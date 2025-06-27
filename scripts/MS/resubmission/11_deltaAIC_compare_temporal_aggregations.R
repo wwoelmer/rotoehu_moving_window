@@ -45,7 +45,7 @@ delta_aic <- ggplot(out_prop, aes(x = as.Date(start_date), y = diff_from_none_ai
   #scale_color_manual(values = col_pal) +
   scale_color_manual(values = c('#6C5379', '#5FAD56')) 
 delta_aic
-
+ggplotly(delta_aic)
 ################################################################################
 # repeat for three discrete window
 out_three <- read.csv('./data/model_output_three_windows.csv')
