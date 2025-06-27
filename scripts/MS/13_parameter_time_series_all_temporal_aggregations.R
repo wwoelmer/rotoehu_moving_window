@@ -23,9 +23,9 @@ out$id_covar <- factor(out$id_covar,
                              levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
                                         "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
                                         "sum_alum"),
-                             labels = c("Bottom DRP", "Bottom NH4", "Bottom Water Temp",
-                                        "Mean Air Temp", "Min Windspeed", "Water Level", 
-                                         "Alum Dosed"))
+                       labels = c("Bottom DRP", "Bottom NH4", "Bottom water temp",
+                                  "Mean air temp", "Min windspeed", "Water level", 
+                                  "Alum dosed"))
 
 ################################################################################
 # look at parameter values
@@ -44,9 +44,9 @@ outfull$id_covar <- factor(outfull$id_covar,
                        levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
                                   "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
                                   "sum_alum"),
-                       labels = c("Bottom DRP", "Bottom NH4", "Bottom Water Temp",
-                                  "Mean Air Temp", "Min Windspeed", "Water Level", 
-                                  "Alum Dosed"))
+                       labels = c("Bottom DRP", "Bottom NH4", "Bottom water temp",
+                                  "Mean air temp", "Min windspeed", "Water level", 
+                                  "Alum dosed"))
 
 out_dw <- read.csv('./data/model_output_three_windows.csv')  
 out_dw <- out_dw %>% 
@@ -57,9 +57,9 @@ out_dw$id_covar <- factor(out_dw$id_covar,
                            levels = c("bottom_DRP_ugL", "bottom_NH4_ugL", "temp_C_8",
                                       "air_temp_mean", "windspeed_min", "monthly_avg_level_m",
                                       "sum_alum"),
-                           labels = c("Bottom DRP", "Bottom NH4", "Bottom Water Temp",
-                                      "Mean Air Temp", "Min Windspeed", "Water Level", 
-                                      "Alum Dosed"))
+                          labels = c("Bottom DRP", "Bottom NH4", "Bottom water temp",
+                                     "Mean air temp", "Min windspeed", "Water level", 
+                                     "Alum dosed"))
 
 out_all <- full_join(out_mw, outfull)
 out_all <- full_join(out_all, out_dw)
@@ -69,9 +69,9 @@ out_all$timeperiod <- factor(out_all$timeperiod,
                              labels = c("Full", "Discrete", "Moving"))
 
 # make dataframe of direction labels:
-hyp_dir_labels <- data.frame(id_covar = factor(c("Bottom DRP", "Bottom NH4", "Bottom Water Temp",
-                                                 "Mean Air Temp", "Min Windspeed", "Water Level", 
-                                                 "Alum Dosed")) , 
+hyp_dir_labels <- data.frame(id_covar = factor(c("Bottom DRP", "Bottom NH4", "Bottom water temp",
+                                                 "Mean air temp", "Min windspeed", "Water level", 
+                                                 "Alum dosed")) , 
                              direction = c(" +", " +", "+/-", " +", "+/-", " -", " -"))
 
 
