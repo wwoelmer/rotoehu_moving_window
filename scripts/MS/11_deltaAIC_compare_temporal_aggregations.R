@@ -192,30 +192,28 @@ ggsave('./figures/MS/si_figs/all_windows_delta_aic.png', p1,
 
 
 
-(p2 <- ggplot(out_prop_all, aes(x = as.Date(start_date), y = diff_from_none_aic)) +
-  geom_rect(data = out_prop_all[out_prop_all$timeperiod=='Moving window',],
-            aes(xmin = min(as.Date(start_date)), xmax = max(as.Date(start_date)), 
-                ymin = -2, ymax = 2), alpha = 0.8, fill = "grey85") +
-  geom_point(aes(color = significant)) +
-  geom_hline(yintercept = 0) +
-  facet_wrap(~id_covar, scales = 'free_y', ncol = 1) +
-  theme_bw() +
-  ylab(expression(Delta~AIC[c])) +
-  xlab('\nWindow start date') +
-  theme(strip.background = element_blank(), text = element_text(size = 14),
-        strip.text = element_text(size = 14, hjust = 0), 
-        panel.grid.minor = element_blank())+
+(p2 <- ggplot(out_prop, aes(x = as.Date(start_date), y = diff_from_none_aic)) +
+    geom_rect(aes(xmin = min(as.Date(start_date)), xmax = max(as.Date(start_date)), 
+                  ymin = -2, ymax = 2), alpha = 0.8, fill = "grey") +
+    geom_hline(aes(yintercept = 0)) +
+    geom_point(aes(color =  significant)) +
+    facet_wrap(~id_covar, scales = 'free_y', ncol = 1) +
+    theme_bw() +
+    ylab(expression(Delta~AIC[c])) +
+    xlab('\nWindow start date') +
+    theme(strip.background = element_blank(), text = element_text(size = 14),
+          strip.text = element_text(size = 14, hjust = 0), 
+          panel.grid.minor = element_blank())+
     theme(legend.justification = "top" , 
           plot.margin = margin(0, 0, 0, 0, "points"),  axis.ticks.x = element_blank(),
           axis.title = element_text(size = 12, colour = "black"), 
           axis.text = element_text(size = 9), 
           panel.grid = element_blank())+
-  scale_color_manual(values = c('#CC79A7' ,'#009E73'), name = "Significant"))
+    scale_color_manual(values = c('#CC79A7' ,'#009E73'), name = "Significant"))
 
 
 ggsave('./figures/MS/movingwindow_delta_aic_significance.png', p2,
        dpi = 300, units = 'mm', height = 500, width = 350, scale = 0.6)
-
 
 
 
