@@ -1,0 +1,9 @@
+id_covar,adf_p,kpss_p,stationarity
+air_temp_mean,0.61,0.01,non-stationary
+bottom_DRP_ugL,0.48,0.01,non-stationary
+bottom_NH4_ugL,0.07,0.01,non-stationary
+monthly_avg_level_m,0.23,0.01,non-stationary
+none,0.02,0.01,inconclusive
+sum_alum,0.02,0.01,inconclusive
+temp_C_8,0.45,0.01,non-stationary
+windspeed_min,0.01,0.01,inconclusive

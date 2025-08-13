@@ -1,0 +1,24 @@
+Variable,Window,Normality,Model Suitability,Stationarity
+,,Shapiro-Wilks,RESET,Augmented Dickey-Fuller
+,,p > 0.05 indicates normality,p > 0.05 indicates model is suitable,p < 0.05 indicates stationarity
+Bottom water DRP,full,0.62,0.92,0.01
+Bottom water DRP,first_iter,0.58,0.97,0.01
+Bottom water DRP,last_iter,0.44,0.78,0.01
+Bottom water NH4,full,0.84,0.69,0.01
+Bottom water NH4,first_iter,0.40,0.44,0.01
+Bottom water NH4,last_iter,0.78,0.58,0.01
+Bottom water temperature,full,0.42,0.56,0.01
+Bottom water temperature,first_iter,0.77,0.57,0.01
+Bottom water temperature,last_iter,0.04,0.68,0.02
+Air temperature,full,0.56,0.50,0.01
+Air temperature,first_iter,0.77,0.55,0.01
+Air temperature,last_iter,0.13,0.60,0.01
+Windspeed,full,0.11,0.41,0.01
+Windspeed,first_iter,0.15,0.40,0.01
+Windspeed,last_iter,0.04,0.78,0.01
+Water level,full,0.17,0.37,0.01
+Water level,first_iter,0.17,0.36,0.01
+Water level,last_iter,0.11,0.68,0.01
+Aluminium sulfate dosed,full,0.15,0.45,0.01
+Aluminium sulfate dosed,first_iter,0.15,0.39,0.01
+Aluminium sulfate dosed,last_iter,0.13,0.70,0.01
